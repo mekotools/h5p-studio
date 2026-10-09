@@ -69,11 +69,15 @@ Name, und sie vergibt die Stufe, die beantragt wird. Die Ablage ist leer
 
 ## Offener Rest (Entscheidung nötig)
 
-- **Selbstregistrierung ist derzeit aus.** In Pocket ID gilt
-  `allowUserSignups=withToken` (Stand 09.10.2026): Konten entstehen nur über
-  eine Einladung. Damit der Grundzugang „ohne Prüfung" wirklich offen ist,
-  muss diese Einstellung geändert werden — das ist eine Sicherheitsentscheidung
-  und nicht Teil dieses Changes. Bis dahin ist der ehrliche Weg der Antrag.
+- ~~**Selbstregistrierung ist derzeit aus.**~~ **Erledigt am 09.10.2026:** auf
+  Nutzerentscheidung („Ja Selbstregistrierung an") eingeschaltet —
+  `allowUserSignups=open` **und** `signupDefaultUserGroupIDs=[angemeldet]`. Der
+  zweite Wert ist der wichtigere: ohne ihn landen selbst registrierte Konten in
+  **keiner** Gruppe und haben wegen der Grundhaltung `deny` nirgends Zugang.
+  Ende zu Ende belegt: Konto über `/signup` mit virtuellem Passkey angelegt →
+  Gruppe `angemeldet` → Testkonto wieder gelöscht.
+- **Bekannter Preis:** `emailVerificationEnabled=false` — eine Registrierung
+  braucht keine bestätigte Adresse. Offen, ob das so bleiben soll.
 - Die Seite läuft weiterhin unter der Adresse des Studios — die einzige
   verbleibende Naht. Eine eigene Adresse (`mekotools.de/antrag` oder
   `zugang.mekotools.de`) wäre ein eigener Change.

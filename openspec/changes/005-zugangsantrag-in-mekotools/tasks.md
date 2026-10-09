@@ -52,9 +52,12 @@
 
 ## 6. Hausordnung und offener Rest
 
-- [ ] 6.1 README fortschreiben
-- [ ] 6.2 Skill: Worte gehören dem Haus; eine Antragsstrecke; Freigabe vergibt
-      Stufe samt Unterbau
-- [ ] 6.3 **Entscheidung des Nutzers:** Selbstregistrierung in Pocket ID
-      einschalten (`allowUserSignups`)? Derzeit aus — der Grundzugang ist damit
-      noch nicht „ohne Prüfung" offen.
+- [x] 6.1 README fortschreiben
+- [x] 6.2 Skill: Worte gehören dem Haus; eine Antragsstrecke; Freigabe vergibt
+      Stufe samt Unterbau; `allowUserSignups=open` **nur zusammen mit**
+      `signupDefaultUserGroupIDs`
+- [x] 6.3 **Entscheidung des Nutzers:** Selbstregistrierung eingeschaltet
+      („Ja Selbstregistrierung an"), Ende zu Ende belegt (Konto → Gruppe
+      `angemeldet` → Testkonto gelöscht)
+- [ ] 6.4 Offen zur Entscheidung: `emailVerificationEnabled=false` — Adressen
+      werden bei der Registrierung nicht bestätigt
