@@ -84,34 +84,51 @@ class FreigabeForm extends ConfirmFormBase {
 
     try {
       $pocket = new PocketId();
-      $gruppe = $pocket->gruppe(Stufen::ANGEMELDET);
-      if (!$gruppe) {
-        throw new \RuntimeException('Im Anmeldedienst gibt es keine Gruppe „'
-          . Stufen::ANGEMELDET . '". Bitte dort zuerst anlegen.');
+      // Der Antrag ist der Antrag auf den BESTÄTIGTEN Zugang (Stufe 2). Wer
+      // freigegeben wird, bekommt diese Stufe — und alles darunter, weil jedes
+      // Werkzeug seine eigene Mindeststufe prüft und die Stufen nicht
+      // mitwachsen, wenn nur die oberste Gruppe gesetzt wird.
+      $ziel = Stufen::FACHKRAFT;
+      $zu_setzen = [];
+      $ziel_nummer = Stufen::nummer($ziel);
+      foreach (Stufen::leiter() as $name => $werte) {
+        if ($werte[0] <= $ziel_nummer) {
+          $g = $pocket->gruppe($name);
+          if (!$g) {
+            throw new \RuntimeException('Im Anmeldedienst gibt es keine Gruppe „'
+              . $name . '". Bitte dort zuerst anlegen.');
+          }
+          $zu_setzen[$name] = $g['id'];
+        }
       }
       $konto = $pocket->kontoNachAdresse($antrag->adresse);
       if ($konto) {
         $konto_id = $konto['id'];
-        // Hinzufügen, nicht ersetzen: wer schon höhere Stufen hat, verliert sie nicht.
-        $pocket->gruppeHinzufuegen($konto_id, $gruppe['id']);
-        $this->messenger()->addStatus($this->t('@adresse hat schon ein Konto; es wurde in die Stufe „angemeldet" aufgenommen.', [
+        // Nur hinzufügen, nicht ersetzen: wer schon höhere Stufen hat, verliert sie nicht.
+        foreach ($zu_setzen as $name => $gid) {
+          $pocket->gruppeHinzufuegen($konto_id, $gid);
+        }
+        $this->messenger()->addStatus($this->t('@adresse hat schon ein Konto; es wurde in die Stufe „@stufe" aufgenommen.', [
           '@adresse' => $antrag->adresse,
+          '@stufe' => Stufen::bezeichnung($ziel),
         ]));
       }
       else {
-        $konto = $pocket->kontoAnlegen($antrag->adresse, $antrag->name, [$gruppe['id']]);
+        $konto = $pocket->kontoAnlegen($antrag->adresse, $antrag->name, array_values($zu_setzen));
         $konto_id = (string) ($konto['id'] ?? '');
         $this->messenger()->addStatus($this->t('Konto für @adresse angelegt.', ['@adresse' => $antrag->adresse]));
       }
       $pocket->einladungSenden($konto_id);
       $speicher->zustandSetzen((int) $antrag->nummer, 'aufgenommen',
-        'Stufe 1 (angemeldet): Einladung verschickt.',
+        'Stufe ' . $ziel_nummer . ' (' . $ziel . '): Einladung verschickt.',
         (int) $this->currentUser()->id(), (string) $konto_id);
-      $this->messenger()->addStatus($this->t('Die Einladung an @adresse ist unterwegs. Die Person ist jetzt angemeldet, aber noch nicht bestätigt.', [
+      $this->messenger()->addStatus($this->t('Die Einladung an @adresse ist unterwegs. Die Person ist jetzt @stufe.', [
         '@adresse' => $antrag->adresse,
+        '@stufe' => Stufen::bezeichnung($ziel),
       ]));
-      $this->logger('mekotools_studio')->notice('Zugangsantrag @nummer aufgenommen (Stufe 1), Konto @konto.', [
+      $this->logger('mekotools_studio')->notice('Zugangsantrag @nummer aufgenommen (Stufe @stufe), Konto @konto.', [
         '@nummer' => $antrag->nummer,
+        '@stufe' => $ziel_nummer,
         '@konto' => $konto_id,
       ]);
     }

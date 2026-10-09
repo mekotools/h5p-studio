@@ -1,19 +1,39 @@
-# Change 005 — Eine Antragsstrecke: Zugang zu MekoTools
+# Change 005 — Eine Zugangsleiter: Stufen statt Studio-Antrag
 
 ## Warum
 
 Für Nutzende sollen alle Apps **aus einem Guss** erscheinen. Wer Zugang will,
-beantragt deshalb keinen Zugang „zum Studio", sondern **zu MekoTools** — einen
-Zugang, der für alle Werkzeuge gilt (H5P-Studio, Shadowbroker, Fuiz …).
+beantragt deshalb keinen Zugang „zum Studio", sondern Zugang zu **MekoTools** —
+und zwar auf der Stufe, die er braucht.
 
-Heute steht das Gegenteil in der Welt:
+Der Zugang ist eine **Leiter mit drei Stufen** (so auch schon im Code,
+`src/Stufen.php`):
 
-- Die Seite heißt **„Zugang zum Studio beantragen"**, der Menüpunkt „Zugang
-  beantragen", das Formular beginnt mit „Das Studio steht … offen".
-- Die Anleitung im Werkzeug und der Werkzeugkatalog verweisen auf
-  `studio.mekotools.de/zugang/antrag` — **das liefert 404** (richtig ist
-  `/zugang`, am 09.10.2026 gemessen).
-- Der Katalog schreibt, man beantrage den Zugang „im Studio selbst".
+| Stufe | Gruppe | Bezeichnung | Wer kommt rein |
+|---|---|---|---|
+| 1 | `angemeldet` | Angemeldet (Grundzugang) | ohne Prüfung |
+| 2 | `lehrkraefte` | Fachkraft bestätigt (Lehrkraft) | per Antrag, geprüft |
+| 3 | `verwaltung` | Verwaltung | auf Einladung |
+
+Am 09.10.2026 am laufenden Dienst gemessen, welche Werkzeug welche Stufe
+verlangt:
+
+- **Stufe 1** genügt für **H5P-Studio** (Pocket-ID-Anwendung „H5P-Studio",
+  erlaubte Gruppe `angemeldet`), **Claper** (dito) und **Fuiz**
+  (`TINYAUTH_APPS_FUIZSTASH_OAUTH_GROUPS=angemeldet`).
+- **Stufe 2** verlangt **Shadowbroker**
+  (`TINYAUTH_APPS_SHADOWBROKER_OAUTH_GROUPS=lehrkraefte`, Vorgabe
+  `TINYAUTH_AUTH_ACLS_POLICY=deny`).
+
+Was nicht stimmte:
+
+- Die Antragsseite hieß **„Zugang zum Studio beantragen"** und sprach vom
+  Studio — obwohl die Antragsstrecke MekoTools gehört.
+- Die **Freigabe vergab Stufe 1** (`Stufen::ANGEMELDET`), nicht die beantragte
+  Stufe. Wer für Shadowbroker freigegeben wurde, kam dort also nicht hinein.
+- Anleitung und Werkzeug-Metadaten verwiesen auf
+  `studio.mekotools.de/zugang/antrag` — **404** (richtig ist `/zugang`).
+- Der Katalog schrieb, man beantrage den Zugang „im Studio selbst".
 
 Auftrag (Wortlaut, 09.10.2026):
 
@@ -22,33 +42,38 @@ Auftrag (Wortlaut, 09.10.2026):
 > Antragsseite auch aus Drupal von mekotools einbinden, aber wir brauchen keinen
 > EXTRA Antrag von der Studio Seite aus."
 
-Daraus folgt: **kein zweiter Antrag, kein eigener Dienst.** Die vorhandene
-Strecke bleibt bestehen, wird aber zu der einen MekoTools-Strecke erklärt und
-benannt. Bestandsaufnahme: die Ablage ist leer (0 Anträge), es geht also nichts
-verloren.
+> „Es gibt drei Level und permissions. Self register ist auch direkt ein
+> registrierter User ohne Prüfung, für z.B. fuiz, claper … Beantragen muss man
+> nur für den Level Lehrkraft, um z.B. Zugang zu Shadowbroker o.ä. zu erhalten."
+
+Daraus folgt: **kein zweiter Antrag, kein eigener Dienst** — eine Strecke, ein
+Name, und sie vergibt die Stufe, die beantragt wird. Die Ablage ist leer
+(0 Anträge); es geht nichts verloren.
 
 ## Was sich ändert
 
-1. **Worte: MekoTools statt Studio.** Seitentitel, Menüpunkt, Einleitungstext des
-   Formulars, Bestätigungsseite („Dein Antrag auf Zugang zu MekoTools liegt
-   vor") und der Weg danach („Weiter zu MekoTools" statt „Zur Bibliothek") —
-   denn nach dem Antrag geht es nicht um das Studio, sondern um das Haus.
-2. **Eine Strecke, ausdrücklich.** Der Antrag bleibt technisch in Drupal
-   (Drupal kann ein Formular entgegennehmen, die Hauptseite des Katalogs ist
-   statisch), ist aber die **einzige** Antragsstrecke. Es entsteht keine zweite.
+1. **Die Freigabe vergibt die beantragte Stufe — samt allem darunter.**
+   Der Antrag ist der Antrag auf den **bestätigten Zugang (Stufe 2)**. Die
+   Freigabe setzt Stufe 2 und Stufe 1, weil die Werkzeuge ihre eigene
+   Mindeststufe prüfen und Pocket-ID-Gruppen nicht mitwachsen. (`FreigabeForm`)
+2. **Worte: MekoTools und Stufe statt Studio.** Titel „Zugang als Lehrkraft
+   beantragen", Menüpunkt „Zugang zu MekoTools", Einleitung erklärt beide Wege
+   (Grundzugang ohne Antrag / bestätigter Zugang per Antrag), Bestätigungsseite
+   und Weg danach angepasst.
 3. **MekoTools bekommt die Seite.** Im Werkzeugkatalog (mekotools.de) entsteht
-   die Seite „Zugang zu MekoTools": ein Zugang für alle Werkzeuge, Weg zum
-   Formular, Ablauf (prüfen → Einladung → Passkey), wer einen Zugang bekommt,
-   was Lernende brauchen (nichts).
-4. **Falscher Verweis berichtigt.** Anleitung und Werkzeug-Metadaten nennen
-   künftig die richtige Adresse (`studio.mekotools.de/zugang`).
+   „Zugang zu MekoTools" mit der Stufenleiter, den Werkzeugen je Stufe, dem Weg
+   zur Anmeldung, dem Antragsweg und der Auskunft, dass Lernende nichts
+   brauchen.
+4. **Falscher Verweis berichtigt.** Anleitung und Werkzeug-Metadaten nennen die
+   richtige Adresse und die richtige Stufe (Studio: Stufe 1 genügt).
 
-## Grenzen und offener Rest
+## Offener Rest (Entscheidung nötig)
 
-- Die Seite läuft weiterhin unter der Adresse des Studios — das ist die einzige
-  verbleibende Naht. Wer sie schließen will, braucht einen eigenen Change
-  (eigene Adresse für die Antragsseite, etwa `mekotools.de/antrag` oder
-  `zugang.mekotools.de` über Traefik). Nicht Teil dieses Changes: es kostet
-  Maschinerie, solange die Seite selbst „MekoTools" sagt.
-- Freigabe und Einladung bleiben in der Studio-Verwaltung (dort werden Stufen
-  und Konten vergeben). Das ist kein zweiter Antrag, sondern die Bearbeitung.
+- **Selbstregistrierung ist derzeit aus.** In Pocket ID gilt
+  `allowUserSignups=withToken` (Stand 09.10.2026): Konten entstehen nur über
+  eine Einladung. Damit der Grundzugang „ohne Prüfung" wirklich offen ist,
+  muss diese Einstellung geändert werden — das ist eine Sicherheitsentscheidung
+  und nicht Teil dieses Changes. Bis dahin ist der ehrliche Weg der Antrag.
+- Die Seite läuft weiterhin unter der Adresse des Studios — die einzige
+  verbleibende Naht. Eine eigene Adresse (`mekotools.de/antrag` oder
+  `zugang.mekotools.de`) wäre ein eigener Change.

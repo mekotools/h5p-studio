@@ -1,13 +1,13 @@
 mekotools_studio.zugang:
   title: 'Zugang zu MekoTools'
-  description: 'Antrag auf Zugang zu MekoTools — ein Zugang gilt für alle Werkzeuge.'
+  description: 'Antrag auf den bestätigten Zugang (Lehrkraft) — damit öffnen sich Werkzeuge wie Shadowbroker. Der Grundzugang braucht keinen Antrag.'
   route_name: mekotools_studio.zugang
   menu_name: main
   weight: 10
 
 mekotools_studio.antraege:
-  title: 'Zugangsanträge'
-  description: 'Anträge auf Zugang zu MekoTools einsehen und freigeben.'
+  title: 'Anträge: bestätigter Zugang'
+  description: 'Anträge auf den bestätigten Zugang (Lehrkraft) einsehen und freigeben.'
   route_name: mekotools_studio.antraege
   parent: system.admin_config
   menu_name: admin

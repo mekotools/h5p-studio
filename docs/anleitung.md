@@ -12,16 +12,19 @@ Adresse: **https://studio.mekotools.de**
 - Einen Rechner mit Browser (Tablet geht zum Nachschauen, zum Bauen ist ein Rechner
   angenehmer).
 - Einen Zugang zu **MekoTools** — ein Konto bei der MekoTools-Anmeldung (siehe
-  unten). Ein Zugang gilt für alle Werkzeuge des Hauses, nicht nur für das Studio.
+  unten). Für das Studio genügt der **Grundzugang**; ein Antrag ist dafür nicht nötig.
 - Für die Klasse später: **nichts** außer der Adresse der fertigen Übung.
 
 ## Zugang bekommen
 
-1. Öffne **https://studio.mekotools.de/zugang** und fülle den Antrag aus. Er gilt für
-   MekoTools insgesamt — du brauchst ihn nur einmal.
-2. Die Verwaltung prüft ihn und schickt eine **Einladung per E-Mail**. Darin steht
-   ein Link, mit dem das Konto eingerichtet wird.
-3. Danach meldest du dich auf der Startseite über **Anmelden** an. Auf der
+1. Melde dich an der **MekoTools-Anmeldung** an: <https://auth.mekotools.de>. Das ist
+   der **Grundzugang** (Stufe 1, „angemeldet") — kostenlos, ohne Prüfung. Damit nutzt
+   du das H5P-Studio, Claper und Fuiz.
+2. Für weitergehende Werkzeuge — etwa Shadowbroker — brauchst du den **bestätigten
+   Zugang** (Stufe 2, „Lehrkraft"). Dafür füllst du den Antrag aus:
+   <https://studio.mekotools.de/zugang>. Die Verwaltung prüft ihn und schickt dir eine
+   Einladung per E-Mail.
+3. Auf der Startseite des Studios meldest du dich über **Anmelden** an. Auf der
    Anmeldeseite nimmst du den Knopf **MekoTools-Anmeldung** — das Formular darunter
    (E-Mail und Passwort im Studio selbst) brauchst du nicht.
 4. Als Anmeldung kommt ein **Code per E-Mail**: Adresse eingeben, Code aus der Mail

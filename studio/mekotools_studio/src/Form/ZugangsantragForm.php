@@ -32,10 +32,12 @@ class ZugangsantragForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['hinweis'] = [
-      '#markup' => '<p>MekoTools steht Lehrkräften und Fachkräften aus Bildung und Beratung offen. '
-      . 'Ein Zugang gilt für alle Werkzeuge — das H5P-Studio, Shadowbroker und alles, was noch dazukommt. '
-      . 'Trag dich hier ein: Wir prüfen den Antrag und schicken dir anschließend eine Einladung per E-Mail. '
-      . 'Mit dieser Einladung legst du einen Passkey an; ein Kennwort brauchst du nicht.</p>',
+      '#markup' => '<p>Der <strong>Grundzugang</strong> zu MekoTools ist kostenlos und braucht keinen '
+      . 'Antrag: Wer sich anmeldet, kann damit Werkzeuge wie das H5P-Studio, Claper und Fuiz nutzen.</p>'
+      . '<p>Dieser Antrag ist für den <strong>bestätigten Zugang (Lehrkraft)</strong>. Damit öffnen sich '
+      . 'die weitergehenden Werkzeuge — etwa Shadowbroker. Wir prüfen den Antrag und schicken dir '
+      . 'eine Einladung per E-Mail. Mit dieser Einladung richtest du deinen Zugang ein; die Anmeldung '
+      . 'läuft über einen Passkey, ein Kennwort brauchst du nicht.</p>',
     ];
 
     $form['name'] = [
