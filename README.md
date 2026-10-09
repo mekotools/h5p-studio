@@ -36,6 +36,12 @@ trägt das Studio die Gestalt von **mekotools.de** (dort läuft MkDocs Material)
   (`js/anmeldung.js` reicht Drupals Zwischenseite in einem Zug weiter), nach der
   Anmeldung stehen dort der eigene Name und „Abmelden". Drupals eigene
   Anmeldeseite `/user/login` bleibt der Verwaltung vorbehalten.
+- **Zugang in drei Stufen** (`src/Stufen.php`): Stufe 1 „angemeldet" (Grundzugang,
+  ohne Prüfung) genügt für Studio, Claper und Fuiz; Stufe 2 „Fachkraft bestätigt
+  (Lehrkraft)" wird per **Antrag** (`/zugang`) vergeben und öffnet weitergehende
+  Werkzeuge wie Shadowbroker; Stufe 3 „verwaltung" verwaltet Anträge und Konten.
+  Die Freigabe vergibt die beantragte Stufe **samt allem darunter** — Pocket-ID-
+  Gruppen wachsen nicht mit, jedes Werkzeug prüft seine eigene Mindeststufe.
 - **Bibliothek und Beitragsseiten im Stil des Werkzeugkatalogs:** Jeder Eintrag
   trägt unter dem Titel eine **Beschreibung — was die Lektion enthält**
   (Pflichtfeld `field_beschreibung`; ohne sie ist ein Titel allein nicht zu

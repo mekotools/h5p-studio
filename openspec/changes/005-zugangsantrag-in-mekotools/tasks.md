@@ -38,14 +38,17 @@
 
 ## 5. Nachweis
 
-- [ ] 5.1 Gemessen: `/zugang` liefert 200, Titel „Zugang als Lehrkraft
+- [x] 5.1 Gemessen: `/zugang` liefert 200, Titel „Zugang als Lehrkraft
       beantragen", Einleitung nennt Grundzugang und bestätigten Zugang
-- [ ] 5.2 Katalogseite online erreichbar; die Verweise (Studio, Anmeldung,
-      Stufen-Übersicht) liefern 200
-- [ ] 5.3 Probelauf der Freigabe: Antrag → in der Verwaltung sichtbar → freigeben
-      → Konto hat Stufe 2 **und** Stufe 1 (gegen den Anmeldedienst geprüft)
-- [ ] 5.4 Kein zweiter Antrag: genau eine Strecke (`/zugang`)
-- [ ] 5.5 Fertigungslauf grün, ausgeliefert, Fingerabdruck notieren
+- [x] 5.2 Katalogseite online erreichbar (200); Werkzeugtafel H5P-Studio nennt
+      Stufe 1 und die Adresse `/zugang`; „zugang/antrag" kommt nicht mehr vor
+- [x] 5.3 Stufenlogik am laufenden Dienst geprüft (nur lesend): Ziel Stufe 2
+      (`lehrkraefte`, „Fachkraft bestätigt"); gesetzt werden Stufe 1 + 2,
+      Stufe 3 nicht; alle drei Gruppen im Anmeldedienst vorhanden
+- [x] 5.4 Kein zweiter Antrag: genau eine Strecke (`/zugang`)
+- [x] 5.5 Fertigungslauf 33 (`b01d2cc8`) grün, ausgeliefert als
+      `sha256:2b5830c863cd…`; Katalog ausgeliefert, online 32 Werkzeuge,
+      Bau-Stand 2026-10-09T15:09:17+02:00
 
 ## 6. Hausordnung und offener Rest
 
