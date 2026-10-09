@@ -87,8 +87,11 @@ chmod 644 "$SETTINGS"
 # --- 3. Einrichten oder aktualisieren ---------------------------------------
 if [ ! -f "$MERKE" ]; then
   melden "Ersteinrichtung beginnt (einmalig, dauert ein bis zwei Minuten)"
+  # Der Verweis enthält das Passwort. Erzeugt wird es als Hex-Wert, deshalb
+  # braucht es keine Sonderbehandlung und steht nicht im Protokoll.
+  DB_URL="mysql://${DB_USER}:${DB_PASS}@${DB_HOST}:3306/${DB_NAME}"
   drush site:install standard \
-    --db-url="mysql://${DB_USER}:${DB_PASS}@${DB_HOST}/${DB_NAME}" \
+    --db-url="$DB_URL" \
     --account-name="$ADMIN_NAME" \
     --account-mail="$ADMIN_MAIL" \
     --account-pass="$ADMIN_PASS" \
