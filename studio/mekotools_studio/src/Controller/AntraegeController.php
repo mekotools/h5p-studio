@@ -101,6 +101,12 @@ class AntraegeController extends ControllerBase {
       ];
     }
 
+    // Diese Seite zeigt den Stand der Anträge. Zwischengespeichert wäre sie nach
+    // einer Entscheidung falsch — genau das passierte am 09.10.2026: nach
+    // Freigabe und Ablehnung standen weiterhin „1 offener Antrag" und kein
+    // Verlauf auf der Seite. Deshalb wird sie bei jedem Aufruf neu gebaut.
+    $bau['#cache'] = ['max-age' => 0];
+
     return $bau;
   }
 
