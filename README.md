@@ -48,7 +48,10 @@ Betrieb, Sicherung und Rückweg: **docs/betrieb.md** (folgt).
 
 - Drupal 11.4.8 · H5P-Modul 2.0.0-beta1 · openid_connect 3.0.0-alpha9 · Drush 13
 - Anleitung für Lehrkräfte: `docs/anleitung.md` · Didaktik: `docs/didaktik.md` ·
-  Unterrichtsentwurf: `docs/unterrichtsentwurf.md` (folgen)
+  Unterrichtsentwurf: `docs/unterrichtsentwurf.md`
+- Im MekoTools-Katalog: <https://mekotools.de/werkzeuge/h5p-studio/> — die
+  Katalogbausteine (`tool.yaml` und die drei Dokumente unter `docs/`) liegen in
+  diesem Repository
 - Entwurf und Stand der Umsetzung: `openspec/changes/001-h5p-studio/`
 
 ## Grenzen (ehrlich)

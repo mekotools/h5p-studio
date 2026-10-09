@@ -1,0 +1,65 @@
+# Metadaten des MekoTools-Werkzeugs "H5P-Studio".
+# Schema: schema/tool.schema.json im Repo mekotools-katalog.
+# Erzeugt mit einem YAML-Schreiber. Werte ohne Beleg werden NICHT eingetragen.
+
+schema_version: 1
+id: h5p-studio
+titel: H5P-Studio
+kurzbeschreibung: 'Interaktive Übungen selbst bauen: Lückentexte, Multiple Choice, Zuordnungen, Interactive
+  Video. Jeder Inhalt bekommt eine Adresse, die im Klassenraum ohne Konto funktioniert.'
+themen:
+- werkzeuge
+unterthemen:
+- werkzeuge/erstellen
+stufe: 2
+schlagworte:
+- praesentieren
+- unterrichtsalltag
+laufzeit: server
+betrieb: eigen
+reifegrad: beta
+aufwand_lehrkraft: mittel
+zielgruppe:
+- primar
+- sek1
+- sek2
+- berufsschule
+geraete:
+- desktop
+kamera: nein
+mikrofon: nein
+bildungsbezug:
+  kompetenzen:
+  - produzieren-praesentieren
+  - problemloesen-handeln
+  faecher:
+  - faecheruebergreifend
+  lernziele:
+  - Die Lehrkraft kann zu einem Unterrichtsthema eine interaktive Übung mit Rückmeldung bauen und sie
+    der Klasse über eine Adresse zugänglich machen.
+  - Die Lernenden können die Übung ohne Konto und ohne Geräteeinrichtung bearbeiten, weil die Adresse
+    im Browser genügt.
+  - 'Die Lehrkraft kann einschätzen, was dieses Werkzeug nicht leistet: Es speichert keine Fortschritte,
+    kennt keine Noten und hat keine Kursstruktur.'
+technik:
+  artefakte:
+  - typ: image
+    referenz: ghcr.io/mekotools/h5p-studio@sha256:d45f4e1c15fcae1ea5e337c677125a0017229b7243b4e884ee03a46d11c35fcc
+    sichtbarkeit: public
+    geprueft_am: '2026-10-09'
+  dienst_url: https://studio.mekotools.de
+  port: 80
+  quellcode: https://git.n0ne.de/mekotools/mekotools-h5p-studio
+  lizenz: GPL-2.0-or-later
+  lizenz_link: https://www.drupal.org/about/licensing
+doku:
+  anleitung: docs/anleitung.md
+  didaktik: docs/didaktik.md
+  unterrichtsentwurf: docs/unterrichtsentwurf.md
+  aufwand_aufbereitung: mittel
+zugang:
+  art: konto
+  hinweis: 'Konto über die MekoTools-Anmeldung (auth.mekotools.de). Zugang beantragen kann man im Studio
+    selbst unter studio.mekotools.de/zugang/antrag — die Verwaltung gibt frei und schickt die Einladung
+    per E-Mail. Lernende brauchen kein Konto: die fertige Übung läuft über ihre Adresse im Browser.'
+stand: '2026-10-09'
