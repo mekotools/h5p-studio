@@ -62,8 +62,9 @@ Netzwerke, Werbung und Marketing, dazu Einstiegs- und Ausgangstests.
   direkt an die Klasse geben.
 - **Wer ein Beispiel weitergibt, nennt Urheber und Lizenz.** Für jedes Beispiel
   stehen beide Angaben samt Prüfsumme in der Liste
-  [docs/herkunft.md](herkunft.md) (dieselben Angaben maschinenlesbar in
-  [docs/herkunft.csv](herkunft.csv)).
+  [docs/herkunft.md](https://git.n0ne.de/mekotools/mekotools-h5p-studio/src/branch/main/docs/herkunft.md)
+  (dieselben Angaben maschinenlesbar in
+  [docs/herkunft.csv](https://git.n0ne.de/mekotools/mekotools-h5p-studio/src/branch/main/docs/herkunft.csv)).
 - Ein Beispiel darf man auch **verändern** — bei CC BY und CC BY-SA ist das
   erlaubt, solange Urheber und Lizenz genannt und die Änderungen kenntlich
   gemacht werden. Beispiele mit „keine Bearbeitung" (ND) haben wir gar nicht
