@@ -4,7 +4,8 @@ Eine Werkstatt für H5P-Inhalte im Browser: Lehrkräfte erstellen interaktive
 Übungen, finden sie in einer gemeinsamen Bibliothek wieder und teilen sie über
 eine Adresse, die ohne Konto funktioniert.
 
-Läuft unter **`h5p-studio.mekotools.de`** (Stapel auf flip, Netz `coolify`).
+Läuft unter **`studio.mekotools.de`** (Stapel auf flip: der Web-Dienst am Netz
+`coolify`, die Datenbank ausschließlich im eigenen internen Netz).
 
 ## Aufbau
 
@@ -37,7 +38,7 @@ nach `ghcr.io/mekotools/h5p-studio`. Der Stapel auf flip zieht das Abbild
 
 ```bash
 # Neuen Stand ausliefern (Digest steht im Protokoll des Fertigungslaufs)
-ssh -J n0ne root@192.168.1.20 'cd /poolio/docker/mekotools-h5p-studio && \
+ssh -J n0ne root@192.168.1.20 'cd /poolio/docker/mekotools-studio && \
   docker compose pull web && docker compose up -d'
 ```
 

@@ -1,21 +1,21 @@
-# MekoTools — H5P-Studio
-# Ablage auf flip: /poolio/docker/mekotools-h5p-studio/docker-compose.yml
-# Start:            cd /poolio/docker/mekotools-h5p-studio && docker compose up -d
+# MekoTools — Studio (H5P-Inhalte erstellen, sammeln, abspielen)
+# Ablage auf flip: /poolio/docker/mekotools-studio/docker-compose.yml
+# Start:            cd /poolio/docker/mekotools-studio && docker compose up -d
+# Adresse:          https://studio.mekotools.de
 #
 # Zwei Behälter, bewusst:
-#  * web         — unser eigenes Abbild (Drupal 11 + H5P-Modul + eigener Aufsatz).
-#  * datenbank   — MariaDB für Inhalte, Konten, Einstellungen.
+#  * web        — eigenes Abbild (Drupal 11 + amtliches H5P-Modul + eigener Aufsatz).
+#  * datenbank  — MariaDB für Inhalte, Konten, Einstellungen.
 #
-# Netze, nach Hausordnung:
-#  * web hängt an `coolify` (damit der Verwalter es erreicht) UND am eigenen
-#    Stapelnetz `intern` (zur Datenbank).
-#  * Die Datenbank hängt AUSSCHLIESSLICH an `intern` — ein Dienst im Netz des
-#    gesamten Projekts wäre für jeden anderen Behälter offen.
-#  * Weil der Behälter an zwei Netzen hängt, muss `traefik.docker.network`
-#    ausdrücklich gesetzt werden, sonst rät der Verwalter und überspringt den
-#    Behälter unter Umständen.
+# Netze, nach Hausordnung (gilt für alle Dienste):
+#  * Nur der Dienst, den der Verwalter erreichen muss, hängt am Netz `coolify`.
+#  * Alle inneren Dienste (Datenbank, Zwischenspeicher) hängen AUSSCHLIESSLICH im
+#    eigenen Stapelnetz `intern` — im Projektnetz wäre jeder fremde Behälter
+#    mitleseberechtigt.
+#  * Hängt ein Behälter an mehreren Netzen, MUSS `traefik.docker.network`
+#    ausdrücklich gesetzt werden — sonst rät der Verwalter.
 #
-# Zwei Fallen, am 09.10.2026 schmerzhaft gelernt und deshalb hier vermerkt:
+# Drei Fallen, am 09.10.2026 schmerzhaft gelernt und deshalb hier vermerkt:
 #  1. Eine scheiternde Gesundheitsprobe führt dazu, dass der Verwalter den
 #     Behälter GAR NICHT als Ziel führt — die Adresse antwortet dann mit seinem
 #     eigenen 404 (text/plain, 19 Byte), obwohl alle Kennzeichnungen stimmen.
@@ -24,6 +24,9 @@
 #     (mekotools-opencut-db, mekotools-claper-db) denselben kurzen Namen; Docker
 #     löst ihn über alle Netze des Behälters auf, und die Anwendung landete
 #     dadurch beim fremden Dienst ("Connection refused").
+#  3. Der Name des Stapelordners bestimmt die Namen der Datenträger. Beim
+#     Umbenennen (h5p-studio → studio am 09.10.2026) müssen die Datenträger
+#     mitwandern, sonst beginnt die Anwendung mit leerer Datenbank.
 services:
   web:
     # Festgenagelt auf den Verdauungswert aus der Fertigung (im Protokoll des
@@ -31,7 +34,7 @@ services:
     #   docker compose pull web && docker compose up -d --no-deps web
     # Rückweg bei kaputtem Stand: vorherigen Wert zurückschreiben, up -d, fertig.
     image: ghcr.io/mekotools/h5p-studio@sha256:WIRD-NACH-DEM-ERSTEN-LAUF-EINGETRAGEN
-    container_name: mekotools-h5p-studio
+    container_name: mekotools-studio
     restart: unless-stopped
     env_file: .env
     depends_on:
@@ -43,17 +46,17 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=coolify
-      - traefik.http.routers.mekotools-h5p-studio.rule=Host(`h5p-studio.mekotools.de`)
-      - traefik.http.routers.mekotools-h5p-studio.entrypoints=http
-      - traefik.http.middlewares.mekotools-scheme-h5p-studio.headers.customrequestheaders.X-Forwarded-Host=h5p-studio.mekotools.de
-      - traefik.http.middlewares.mekotools-scheme-h5p-studio.headers.customrequestheaders.X-Forwarded-Port=443
-      - traefik.http.middlewares.mekotools-scheme-h5p-studio.headers.customrequestheaders.X-Forwarded-Proto=https
-      - traefik.http.routers.mekotools-h5p-studio.middlewares=mekotools-scheme-h5p-studio
-      - traefik.http.services.mekotools-h5p-studio.loadbalancer.server.port=80
+      - traefik.http.routers.mekotools-studio.rule=Host(`studio.mekotools.de`)
+      - traefik.http.routers.mekotools-studio.entrypoints=http
+      - traefik.http.middlewares.mekotools-scheme-studio.headers.customrequestheaders.X-Forwarded-Host=studio.mekotools.de
+      - traefik.http.middlewares.mekotools-scheme-studio.headers.customrequestheaders.X-Forwarded-Port=443
+      - traefik.http.middlewares.mekotools-scheme-studio.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.routers.mekotools-studio.middlewares=mekotools-scheme-studio
+      - traefik.http.services.mekotools-studio.loadbalancer.server.port=80
 
   datenbank:
     image: mariadb:11.4
-    container_name: mekotools-h5p-studio-db
+    container_name: mekotools-studio-db
     restart: unless-stopped
     command: >-
       --character-set-server=utf8mb4

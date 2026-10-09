@@ -9,7 +9,7 @@
 #
 set -eu
 
-STAPEL=/poolio/docker/mekotools-h5p-studio
+STAPEL=/poolio/docker/mekotools-studio
 SPRUNG="-i /opt/data/.ssh/id_rsa -J n0ne"
 WIRT=root@192.168.1.20
 
@@ -29,5 +29,5 @@ ssh $SPRUNG "$WIRT" "docker ps --filter name=mekotools-h5p-studio --format '{{.N
 
 echo "[ausliefern] Probe von aussen (erst nach einigen Sekunden aussagekraeftig)"
 sleep 8
-curl -sS -o /dev/null -w 'Startseite: HTTP %{http_code}\n' https://h5p-studio.mekotools.de/ || true
-curl -sS -o /dev/null -w 'Bibliothek: HTTP %{http_code}\n' https://h5p-studio.mekotools.de/bibliothek || true
+curl -sS -o /dev/null -w 'Startseite: HTTP %{http_code}\n' https://studio.mekotools.de/ || true
+curl -sS -o /dev/null -w 'Bibliothek: HTTP %{http_code}\n' https://studio.mekotools.de/bibliothek || true

@@ -1,7 +1,9 @@
 # Tasks — Change 001 (H5P-Studio)
 
-Stand 09.10.2026: Die Instanz **läuft** unter `https://h5p-studio.mekotools.de`
-(Abbild `ghcr.io/mekotools/h5p-studio@sha256:389d1fe2e8da04ab91f22d509b7b7c02e0d8334731f3268fd9b9299294cb93d8`).
+Stand 09.10.2026: Die Instanz **läuft** unter `https://studio.mekotools.de`
+(Abbild `ghcr.io/mekotools/h5p-studio`, Stapel `/poolio/docker/mekotools-studio`).
+Der Dienst hieß bis zum 09.10.2026 `h5p-studio.mekotools.de`; beim Umbenennen
+mussten die Datenträger mitwandern, weil ihr Name vom Stapelordner kommt.
 Offen sind Anmeldung (Pocket ID), Dokumente, Katalogeintrag und der Klickweg im Browser.
 
 ## A. Entwurf und Gerüst
