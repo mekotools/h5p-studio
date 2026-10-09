@@ -53,6 +53,15 @@ services:
       - traefik.http.middlewares.mekotools-scheme-studio.headers.customrequestheaders.X-Forwarded-Proto=https
       - traefik.http.routers.mekotools-studio.middlewares=mekotools-scheme-studio
       - traefik.http.services.mekotools-studio.loadbalancer.server.port=80
+      # Der alte Name (bis 09.10.2026) leitet dauerhaft weiter, damit gesetzte
+      # Lesezeichen nicht ins Leere laufen.
+      - traefik.http.middlewares.mekotools-studio-umzug.redirectregex.regex=^https?://h5p-studio\.mekotools\.de/(.*)
+      - traefik.http.middlewares.mekotools-studio-umzug.redirectregex.replacement=https://studio.mekotools.de/$${1}
+      - traefik.http.middlewares.mekotools-studio-umzug.redirectregex.permanent=true
+      - traefik.http.routers.mekotools-studio-umzug.rule=Host(`h5p-studio.mekotools.de`)
+      - traefik.http.routers.mekotools-studio-umzug.entrypoints=http
+      - traefik.http.routers.mekotools-studio-umzug.middlewares=mekotools-studio-umzug
+      - traefik.http.routers.mekotools-studio-umzug.service=mekotools-studio
 
   datenbank:
     image: mariadb:11.4
