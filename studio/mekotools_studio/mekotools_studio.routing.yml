@@ -12,3 +12,30 @@ mekotools_studio.kurzweg:
     _controller: '\Drupal\mekotools_studio\Controller\KurzwegController::weiter'
   requirements:
     _permission: 'access content'
+
+# Antrag auf Zugang — ohne Anmeldung erreichbar. Wer noch kein Konto hat, kann
+# sich hier melden; erst die Freigabe legt ein Konto im Anmeldedienst an.
+mekotools_studio.zugang:
+  path: '/zugang'
+  defaults:
+    _form: '\Drupal\mekotools_studio\Form\ZugangsantragForm'
+    _title: 'Zugang zum Studio beantragen'
+  requirements:
+    _permission: 'access content'
+
+mekotools_studio.zugang_erhalten:
+  path: '/zugang/erhalten'
+  defaults:
+    _controller: '\Drupal\mekotools_studio\Controller\ZugangController::erhalten'
+    _title: 'Antrag erhalten'
+  requirements:
+    _permission: 'access content'
+
+# Freigabeseite — nur für die Verwaltung.
+mekotools_studio.antraege:
+  path: '/verwaltung/zugangsantraege'
+  defaults:
+    _form: '\Drupal\mekotools_studio\Form\AntraegeVerwaltenForm'
+    _title: 'Zugangsanträge'
+  requirements:
+    _permission: 'zugangsantraege verwalten'

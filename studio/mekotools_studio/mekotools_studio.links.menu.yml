@@ -1,0 +1,14 @@
+mekotools_studio.zugang:
+  title: 'Zugang beantragen'
+  description: 'Antrag auf Zugang zum Studio — für Lehrkräfte und Fachkräfte.'
+  route_name: mekotools_studio.zugang
+  menu_name: main
+  weight: 10
+
+mekotools_studio.antraege:
+  title: 'Zugangsanträge'
+  description: 'Anträge auf Zugang zum Studio einsehen und freigeben.'
+  route_name: mekotools_studio.antraege
+  parent: system.admin_config
+  menu_name: admin
+  weight: 10

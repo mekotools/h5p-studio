@@ -1,0 +1,4 @@
+zugangsantraege verwalten:
+  title: 'Zugangsanträge einsehen und freigeben'
+  description: 'Erlaubt, Anträge auf Zugang zum Studio zu sehen, Konten im Anmeldedienst anzulegen und Einladungen zu verschicken.'
+  restrict access: true

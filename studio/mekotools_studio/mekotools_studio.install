@@ -12,6 +12,7 @@ use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\mekotools_studio\Antragsspeicher;
 use Drupal\node\Entity\NodeType;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -228,4 +229,127 @@ function mekotools_studio_install() {
     ->set('h5p_export', 1)
     ->set('h5p_embed', 1)
     ->save();
+
+  // 9. Zugangsanträge: Tabelle, Rolle und Recht.
+  mekotools_studio_sicherstellen();
+}
+
+/**
+ * Tabelle der Zugangsanträge.
+ */
+function mekotools_studio_schema() {
+  return [
+    Antragsspeicher::TABELLE => [
+      'description' => 'Anträge auf Zugang zum Studio, mit Zustand und Vermerk.',
+      'fields' => [
+        'nummer' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'description' => 'Laufende Nummer des Antrags.',
+        ],
+        'name' => [
+          'type' => 'varchar',
+          'length' => 120,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'adresse' => [
+          'type' => 'varchar',
+          'length' => 180,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'einrichtung' => [
+          'type' => 'varchar',
+          'length' => 160,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'rolle' => [
+          'type' => 'varchar',
+          'length' => 24,
+          'not null' => TRUE,
+          'default' => '',
+          'description' => 'Selbstauskunft: lehrkraft, fachkraft oder sonstiges.',
+        ],
+        'begruendung' => [
+          'type' => 'text',
+          'size' => 'normal',
+          'not null' => FALSE,
+        ],
+        'zustand' => [
+          'type' => 'varchar',
+          'length' => 16,
+          'not null' => TRUE,
+          'default' => 'offen',
+        ],
+        'vermerk' => [
+          'type' => 'varchar',
+          'length' => 500,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'angelegt' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'bearbeitet' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'zustaendig' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => 'Konto, das entschieden hat.',
+        ],
+      ],
+      'primary key' => ['nummer'],
+      'indexes' => [
+        'zustand' => ['zustand'],
+        'adresse' => ['adresse'],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Sorgt dafür, dass Tabelle, Rolle und Recht vorhanden sind.
+ *
+ * Läuft bei der Ersteinrichtung und bei jeder Aktualisierung: eine bestehende
+ * Instanz wird so nachgezogen, ohne dass jemand von Hand eingreifen muss.
+ */
+function mekotools_studio_sicherstellen() {
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists(Antragsspeicher::TABELLE)) {
+    $schema->createTable(Antragsspeicher::TABELLE, mekotools_studio_schema()[Antragsspeicher::TABELLE]);
+  }
+
+  // Rolle „Verwaltung": sieht Anträge und gibt sie frei. Bewusst nicht an
+  // „Lehrkraft" gehängt — wer unterrichtet, entscheidet nicht über Zugänge.
+  $rolle = Role::load('verwaltung') ?: Role::create([
+    'id' => 'verwaltung',
+    'label' => 'Verwaltung',
+  ]);
+  $rolle->grantPermission('access content')
+    ->grantPermission('access site reports')
+    ->grantPermission('zugangsantraege verwalten')
+    ->save();
+
+  if ($verwaltung = Role::load('administrator')) {
+    if (!$verwaltung->hasPermission('zugangsantraege verwalten')) {
+      $verwaltung->grantPermission('zugangsantraege verwalten')->save();
+    }
+  }
+}
+
+/**
+ * Legt die Tabelle der Zugangsanträge, die Rolle „Verwaltung" und das Recht an.
+ */
+function mekotools_studio_update_10001(&$sandbox) {
+  mekotools_studio_sicherstellen();
+  return 'Tabelle der Zugangsanträge und Rolle „Verwaltung" eingerichtet.';
 }

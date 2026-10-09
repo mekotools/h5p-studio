@@ -79,6 +79,12 @@ cat >> "$SETTINGS" <<PHP
 // Die Verschlüsselung endet am VPS; der Vermittler setzt die Kopfzeilen.
 \$settings['reverse_proxy'] = TRUE;
 \$settings['reverse_proxy_addresses'] = ['$PROXY_NETZ'];
+// Zugang zum Anmeldedienst für die Freigabeseite. Der Verwaltungsschlüssel
+// kommt aus der .env des Stapels und steht damit nicht im Quelltext.
+\$settings['mekotools_studio_pocketid'] = [
+  'basis' => '${STUDIO_POCKETID_BASIS:-https://auth.mekotools.de}',
+  'schluessel' => '${STUDIO_POCKETID_SCHLUESSEL:-}',
+];
 PHP
 chown www-data:www-data "$SETTINGS" "$MERKE" 2>/dev/null || true
 chown -R www-data:www-data "$DATEIEN" "$PRIVAT" "$DATEN/config"
@@ -114,6 +120,7 @@ anmeldung_einrichten() {
   # Verhaltensschalter (Anzeige im Anmeldeformular, Rollenzuordnung, Merkmale)
   # sitzen in den MODULEINSTELLUNGEN — am Kunden abgelegt bleiben sie wirkungslos.
   GRUPPE="${STUDIO_OIDC_GRUPPE:-lehrkraefte}"
+  VERWALTUNG="${STUDIO_OIDC_GRUPPE_VERWALTUNG:-verwaltung}"
 
   # Kundeneinstellungen UND Moduleinstellungen in einem Aufruf. Zwei Fallen:
   #  * Die Entität muss ihre Sorte ("plugin") schon beim Anlegen kennen — sonst
@@ -125,7 +132,7 @@ anmeldung_einrichten() {
   # Die Endpunkte holt sich das Modul NICHT von selbst: die Selbst-Erkundung
   # läuft nur im Formular und legt das Ergebnis dort ab. Ohne sie bleibt der
   # Anmeldebeginn leer. Deshalb wird das Ausstellerdokument hier gelesen.
-  STUDIO_OIDC_GRUPPE="$GRUPPE" drush php:eval '
+  STUDIO_OIDC_GRUPPE="$GRUPPE" STUDIO_OIDC_VERWALTUNG="$VERWALTUNG" drush php:eval '
     $aussteller = rtrim(getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de", "/");
     $werte = [
       "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
@@ -150,6 +157,7 @@ anmeldung_einrichten() {
       echo "WARNUNG: Ausstellerdokument nicht lesbar: " . $e->getMessage() . "\n";
     }
     $gruppe = getenv("STUDIO_OIDC_GRUPPE") ?: "lehrkraefte";
+    $verwaltung = getenv("STUDIO_OIDC_VERWALTUNG") ?: "verwaltung";
     $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
     $kunde = $speicher->load("pocketid");
     if ($kunde) {
@@ -170,12 +178,15 @@ anmeldung_einrichten() {
       ->set("autostart_login", FALSE)
       ->set("connect_existing_users", FALSE)
       ->set("userinfo_mappings", ["mail" => "email", "name" => "preferred_username"])
-      ->set("role_mappings", ["lehrkraft" => [$gruppe, "Lehrkräfte"]])
+      ->set("role_mappings", [
+        "lehrkraft" => [$gruppe, "Lehrkräfte"],
+        "verwaltung" => [$verwaltung, "Verwaltung"],
+      ])
       ->set("force_reset_role_mappings", TRUE)
       ->save();
     echo "Kunde " . $kunde->id() . " bereit\n";
   ' || warnen "Anmeldung konnte nicht eingerichtet werden"
-  melden "Anmeldung eingerichtet, Rolle Lehrkraft an die Gruppe $GRUPPE gebunden"
+  melden "Anmeldung eingerichtet: Lehrkraft an Gruppe $GRUPPE, Verwaltung an Gruppe $VERWALTUNG"
 }
 
 # --- 3b. Einrichten oder aktualisieren --------------------------------------
