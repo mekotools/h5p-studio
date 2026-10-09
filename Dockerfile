@@ -51,7 +51,10 @@ COPY docker/eintritt.sh /usr/local/bin/eintritt.sh
 
 # Der Dateibereich liegt in einem Datenträger, nicht im Abbild: H5P-Inhalte und
 # heruntergeladene H5P-Bibliotheken sollen einen neuen Behälter überleben.
-RUN chmod +x /usr/local/bin/eintritt.sh \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends mariadb-client \
+ && rm -rf /var/lib/apt/lists/* \
+ && chmod +x /usr/local/bin/eintritt.sh \
  && mkdir -p /daten/dateien /daten/privat \
  && ln -sfn /daten/dateien /opt/drupal/web/sites/default/files \
  && chown -R www-data:www-data /daten /opt/drupal/web/sites /opt/drupal/web/modules/custom

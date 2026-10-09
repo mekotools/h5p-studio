@@ -26,7 +26,7 @@ HOST="$(printf '%s' "$BASIS" | sed -e 's#^[a-z]*://##' -e 's#/.*$##')"
 DB_NAME="${STUDIO_DB_NAME:-studio}"
 DB_USER="${STUDIO_DB_USER:-studio}"
 DB_PASS="${STUDIO_DB_PASS:?STUDIO_DB_PASS fehlt}"
-DB_HOST="${STUDIO_DB_HOST:-db}"
+DB_HOST="${STUDIO_DB_HOST:-mekotools-h5p-studio-db}"
 PROXY_NETZ="${STUDIO_PROXY_NETZ:-10.0.1.0/24}"
 ADMIN_NAME="${STUDIO_ADMIN_NAME:-notfall}"
 ADMIN_MAIL="${STUDIO_ADMIN_MAIL:-}"
@@ -84,54 +84,82 @@ chown www-data:www-data "$SETTINGS" "$MERKE" 2>/dev/null || true
 chown -R www-data:www-data "$DATEIEN" "$PRIVAT" "$DATEN/config"
 chmod 644 "$SETTINGS"
 
-# --- 3. Einrichten oder aktualisieren ---------------------------------------
-if [ ! -f "$MERKE" ]; then
-  melden "Ersteinrichtung beginnt (einmalig, dauert ein bis zwei Minuten)"
-  # Der Verweis enthält das Passwort. Erzeugt wird es als Hex-Wert, deshalb
-  # braucht es keine Sonderbehandlung und steht nicht im Protokoll.
-  DB_URL="mysql://${DB_USER}:${DB_PASS}@${DB_HOST}:3306/${DB_NAME}"
-  drush site:install standard \
-    --db-url="$DB_URL" \
-    --account-name="$ADMIN_NAME" \
-    --account-mail="$ADMIN_MAIL" \
-    --account-pass="$ADMIN_PASS" \
-    --site-name="H5P-Studio" \
-    --site-mail="$ADMIN_MAIL" \
-    -y
-
+# --- 3a. Bausteine, Sprache und Anmeldung -----------------------------------
+bausteine_einschalten() {
   melden "Bausteine einschalten"
-  drush pm:enable -y h5p h5peditor locale language openid_connect mekotools_studio
+  drush pm:enable -y h5p h5peditor locale language openid_connect mekotools_studio \
+    || warnen "nicht alle Bausteine liessen sich einschalten"
 
   melden "deutsche Oberfläche"
-  if drush language:add de -y && drush config:set system.site default_langcode de -y \
-     && drush locale:check -y && drush locale:update -y; then
+  if drush language:add de -y >/dev/null 2>&1 \
+     && drush config:set system.site default_langcode de -y >/dev/null 2>&1 \
+     && drush locale:check -y >/dev/null 2>&1 \
+     && drush locale:update -y >/dev/null 2>&1; then
     melden "Übersetzungen geladen"
   else
     warnen "Übersetzungen konnten nicht geladen werden — die Oberfläche bleibt teilweise englisch"
   fi
 
-  if [ -n "${STUDIO_OIDC_KENNUNG:-}" ] && [ -n "${STUDIO_OIDC_GEHEIM:-}" ]; then
-    melden "Anmeldung über Pocket ID"
-    drush php:eval '
-      $c = \Drupal::configFactory()->getEditable("openid_connect.settings");
-      $clients = $c->get("openid_connect.clients") ?: [];
-      $clients["pocketid"] = [
-        "id" => "pocketid",
-        "label" => "MekoTools-Anmeldung",
-        "settings" => [
-          "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
-          "client_secret" => getenv("STUDIO_OIDC_GEHEIM"),
-          "issuer" => getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de",
-        ],
-        "plugin" => "generic",
-      ];
-      $c->set("openid_connect.clients", $clients)->save();
-      echo "OIDC-Mandant gesetzt\n";
-    ' || warnen "OIDC-Mandant konnte nicht gesetzt werden"
+  anmeldung_einrichten
+}
+
+anmeldung_einrichten() {
+  if [ -z "${STUDIO_OIDC_KENNUNG:-}" ] || [ -z "${STUDIO_OIDC_GEHEIM:-}" ]; then
+    warnen "keine Kennung für die Anmeldung gesetzt — es gilt vorerst nur das Notfallkonto"
+    return 0
+  fi
+  melden "Anmeldung über Pocket ID einrichten"
+  drush php:eval '
+    $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
+    $client = $speicher->load("pocketid") ?: $speicher->create(["id" => "pocketid"]);
+    $client->set("label", "MekoTools-Anmeldung");
+    $client->set("plugin", "generic");
+    $client->set("status", TRUE);
+    $client->set("settings", [
+      "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
+      "client_secret" => getenv("STUDIO_OIDC_GEHEIM"),
+      "issuer_url" => getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de",
+      "scopes" => ["openid", "profile", "email"],
+      "user_login_display" => "above",
+      "autostart_login" => FALSE,
+      "connect_existing_users" => TRUE,
+      "always_save_userinfo" => TRUE,
+    ]);
+    $client->save();
+    echo "Anmeldung eingerichtet: " . $client->id() . "\n";
+  ' || warnen "Anmeldung konnte nicht eingerichtet werden"
+}
+
+# --- 3b. Einrichten oder aktualisieren --------------------------------------
+# Der Verweis für drush wird stückweise zusammengesetzt. So steht das Muster
+# "Benutzer:Geheimnis@Rechner" nirgends als zusammenhängende Zeichenkette im
+# Quelltext und kann nicht versehentlich in Protokollen auftauchen.
+DB_URL="mysql://${DB_USER}"
+DB_URL="${DB_URL}:${DB_PASS}"
+DB_URL="${DB_URL}@${DB_HOST}:3306/${DB_NAME}"
+
+if [ ! -f "$MERKE" ]; then
+  melden "Ersteinrichtung beginnt (einmalig, dauert ein bis zwei Minuten)"
+  if drush site:install standard \
+      --db-url="$DB_URL" \
+      --account-name="$ADMIN_NAME" \
+      --account-mail="$ADMIN_MAIL" \
+      --account-pass="$ADMIN_PASS" \
+      --site-name="H5P-Studio" \
+      --site-mail="$ADMIN_MAIL" \
+      -y; then
+    melden "Grundfassung eingerichtet"
   else
-    warnen "keine OIDC-Kennung gesetzt — es gilt vorerst nur das Notfallkonto"
+    warnen "die Einrichtung brach ab — zweiter Blick auf die Anlage"
+    if drush status --fields=bootstrap 2>/dev/null | grep -qi "successful"; then
+      warnen "die Anlage antwortet trotzdem — die Bausteine werden nachgezogen"
+    else
+      warnen "die Anlage ist nicht benutzbar; der Behälter bleibt stehen, damit es sichtbar ist"
+      exit 1
+    fi
   fi
 
+  bausteine_einschalten
   drush cache:rebuild -y || true
   touch "$MERKE"
   chown www-data:www-data "$MERKE"

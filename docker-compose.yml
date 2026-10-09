@@ -38,6 +38,11 @@ services:
 
   db:
     image: mariadb:11.4
+    # ACHTUNG Namenswahl: der Dienst heißt absichtlich NICHT "db". Im Netz
+    # `coolify` liegt bereits ein fremder Dienst mit dem Namen "db"; Docker
+    # löst einen kurzen Namen über alle Netze des Behälters auf, und die
+    # Web-Anwendung landete dadurch beim fremden Dienst (Verbindung
+    # abgelehnt). Mit container_name als Ansprechnamen ist es eindeutig.
     container_name: mekotools-h5p-studio-db
     restart: unless-stopped
     command: >-
