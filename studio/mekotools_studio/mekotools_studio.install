@@ -144,17 +144,13 @@ function mekotools_studio_install() {
     ])->save();
   }
 
-  // 5. Kurzbeschreibung (nutzt das Feld, das die Grundfassung mitbringt).
-  if (FieldStorageConfig::loadByName('node', 'body')
-      && !FieldConfig::loadByName('node', 'h5p_inhalt', 'body')) {
-    FieldConfig::create([
-      'field_name' => 'body',
-      'entity_type' => 'node',
-      'bundle' => 'h5p_inhalt',
-      'label' => 'Kurzbeschreibung',
-      'required' => FALSE,
-    ])->save();
-  }
+  // 5. Beschreibung — was die Lektion enthält.
+  //
+  // Die Grundfassung legte dafür Drupals „body"-Feld an. Dieses Feld gibt es in
+  // diesem Aufbau nicht (das Basisprofil bringt es nicht mit), deshalb stand in
+  // der Bibliothek nie eine Beschreibung. Ein eigenes Feld ist hier ohnehin
+  // richtiger: Es braucht kein Textformat und wird unverändert ausgegeben.
+  _mekotools_studio_beschreibungsfeld();
 
   // 6. Formular und Anzeige.
   $form = EntityFormDisplay::load('node.h5p_inhalt.default') ?: EntityFormDisplay::create([
@@ -176,26 +172,32 @@ function mekotools_studio_install() {
         'placeholder' => 'Schlagworte, durch Komma getrennt',
       ],
     ]);
-  if (FieldConfig::loadByName('node', 'h5p_inhalt', 'body')) {
-    $form->setComponent('body', [
-      'type' => 'text_textarea',
-      'weight' => 4,
-      'settings' => ['rows' => 3, 'placeholder' => ''],
-    ]);
-  }
+  $form->setComponent('field_beschreibung', [
+    'type' => 'string_textarea',
+    'weight' => 0,
+    'settings' => [
+      'rows' => 3,
+      'placeholder' => 'Was enthält die Lektion? Ein bis zwei Sätze.',
+    ],
+  ]);
   $form->save();
 
-  $view = EntityViewDisplay::load('node.h5p_inhalt.default') ?: EntityViewDisplay::create([
-    'id' => 'node.h5p_inhalt.default',
+  // Die Seite eines Inhalts wird im Modus „Vollständige Inhaltsansicht" (full)
+  // gezeichnet — nicht im Modus „default". Felder, die nur in „default"
+  // eingetragen sind, erscheinen nie; am 09.10.2026 standen die Angaben genau
+  // dort. Die Übung selbst (field_h5p) trägt der H5P-Baustein bei, sie wird
+  // hier nicht noch einmal eingetragen (sonst stünde sie doppelt).
+  $view = EntityViewDisplay::load('node.h5p_inhalt.full') ?: EntityViewDisplay::create([
+    'id' => 'node.h5p_inhalt.full',
     'targetEntityType' => 'node',
     'bundle' => 'h5p_inhalt',
-    'mode' => 'default',
+    'mode' => 'full',
     'status' => TRUE,
   ]);
-  $view->setComponent('field_h5p', ['type' => 'h5p_default', 'label' => 'hidden', 'weight' => 0])
-    ->setComponent('body', ['type' => 'text_default', 'label' => 'hidden', 'weight' => 1])
-    ->setComponent('field_fach', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 2])
-    ->setComponent('field_schlagworte', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 3]);
+  $view->setComponent('field_beschreibung', ['type' => 'basic_string', 'label' => 'hidden', 'weight' => 0])
+    ->setComponent('field_h5p', ['type' => 'h5p_default', 'label' => 'hidden', 'weight' => 1])
+    ->setComponent('field_fach', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 2, 'settings' => ['link' => FALSE]])
+    ->setComponent('field_schlagworte', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 3, 'settings' => ['link' => FALSE]]);
   $view->save();
 
   // 7. Rollen der Stufenleiter (Rechte siehe _mekotools_studio_stufenrechte).
@@ -213,6 +215,34 @@ function mekotools_studio_install() {
 
   // 9. Zugangsanträge: Tabelle, Rolle und Recht.
   mekotools_studio_sicherstellen();
+}
+
+/**
+ * Feld „Beschreibung" anlegen (wiederholbar).
+ *
+ * Ohne Beschreibung ist ein Eintrag im Katalog nicht zu deuten: Der Titel sagt,
+ * worum es geht, die Beschreibung sagt, was die Lektion enthält. Das Feld ist
+ * deshalb Pflicht und wird auf der Bibliotheksseite unter dem Titel ausgegeben.
+ */
+function _mekotools_studio_beschreibungsfeld() {
+  if (!FieldStorageConfig::loadByName('node', 'field_beschreibung')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_beschreibung',
+      'entity_type' => 'node',
+      'type' => 'string_long',
+      'cardinality' => 1,
+    ])->save();
+  }
+  if (!FieldConfig::loadByName('node', 'h5p_inhalt', 'field_beschreibung')) {
+    FieldConfig::create([
+      'field_name' => 'field_beschreibung',
+      'entity_type' => 'node',
+      'bundle' => 'h5p_inhalt',
+      'label' => 'Beschreibung',
+      'description' => 'Was enthält die Lektion? Ein bis zwei Sätze. Der Text steht in der Bibliothek unter dem Titel.',
+      'required' => TRUE,
+    ])->save();
+  }
 }
 
 /**
@@ -515,11 +545,14 @@ function mekotools_studio_update_10005(&$sandbox) {
   foreach (Block::loadMultiple() as $vorhanden) {
     $vorlagen[$vorhanden->getPluginId()] = $vorhanden;
   }
+  //    Ohne Brotkrümel: Drupal zeichnet ihn als numerierte Liste und auf der
+  //    Startseite (unsere Bibliothek) steht dann bloß „1. Startseite" — auf
+  //    einer Beitragsseite fehlt der Seitenname ganz. Zurück in den Katalog
+  //    führt der Verweis oben auf jeder Beitragsseite. Am 09.10.2026 entfernt.
   $gewuenscht = [
     'mekotools_huelle_page_title' => ['page_title_block', 'content', -10],
     'mekotools_huelle_content' => ['system_main_block', 'content', 0],
     'mekotools_huelle_messages' => ['system_messages_block', 'hinweise', 0],
-    'mekotools_huelle_breadcrumbs' => ['system_breadcrumb_block', 'hinweise', 1],
     'mekotools_huelle_main_menu' => ['system_menu_block:main', 'kopf_navigation', 0],
   ];
   $entfernt = 0;
@@ -588,4 +621,62 @@ function mekotools_studio_update_10005(&$sandbox) {
 
   $gemeldet[] = 'Fertig: ' . implode(' ', $gemeldet);
   return implode(' ', $gemeldet);
+}
+
+/**
+ * Beschreibungsfeld nachreichen und Beschreibungen der Beispiele einsetzen.
+ *
+ * Der Schritt legt das Feld an (10006). Die Texte der 30 vorhandenen Beispiele
+ * setzt das Werkzeug „beschreibungen-einspielen.php" — Inhalte gehören nicht in
+ * einen Aktualisierungsschritt, weil ein Schritt bei jedem Nachbau liefe und
+ * dabei von Hand gepflegte Texte überschreiben würde.
+ */
+function mekotools_studio_update_10006(&$sandbox) {
+  _mekotools_studio_beschreibungsfeld();
+
+  // Anzeige nachziehen, damit das Feld auch in einer bestehenden Instanz
+  // sichtbar ist: im Formular über der Übung, in der Ansicht ohne Beschriftung
+  // (die Beschriftung trägt die Seite selbst).
+  $form = EntityFormDisplay::load('node.h5p_inhalt.default');
+  if ($form) {
+    $form->setComponent('field_beschreibung', [
+      'type' => 'string_textarea',
+      'weight' => 0,
+      'settings' => [
+        'rows' => 3,
+        'placeholder' => 'Was enthält die Lektion? Ein bis zwei Sätze.',
+      ],
+    ])->save();
+  }
+  $view = EntityViewDisplay::load('node.h5p_inhalt.full');
+  if (!$view) {
+    $view = EntityViewDisplay::create([
+      'id' => 'node.h5p_inhalt.full',
+      'targetEntityType' => 'node',
+      'bundle' => 'h5p_inhalt',
+      'mode' => 'full',
+      'status' => TRUE,
+    ]);
+  }
+  $view->setComponent('field_beschreibung', [
+    'type' => 'basic_string',
+    'label' => 'hidden',
+    'weight' => 0,
+  ])->setComponent('field_h5p', [
+    'type' => 'h5p_default',
+    'label' => 'hidden',
+    'weight' => 1,
+  ])->setComponent('field_fach', [
+    'type' => 'entity_reference_label',
+    'label' => 'inline',
+    'weight' => 2,
+    'settings' => ['link' => FALSE],
+  ])->setComponent('field_schlagworte', [
+    'type' => 'entity_reference_label',
+    'label' => 'inline',
+    'weight' => 3,
+    'settings' => ['link' => FALSE],
+  ])->save();
+
+  return 'Feld „Beschreibung" angelegt und in Formular und Ansicht (full) eingetragen.';
 }

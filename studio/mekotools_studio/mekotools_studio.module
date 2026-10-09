@@ -115,7 +115,7 @@ function mekotools_studio_node_view(array &$build, EntityInterface $node, \Drupa
         'value' => $adresse,
         'readonly' => 'readonly',
         'id' => 'h5p-studio-adresse',
-        'style' => 'width:100%;max-width:44em;padding:.4em;font-family:monospace',
+        'class' => ['h5p-studio-adresse-feld'],
         'onclick' => 'this.select()',
       ],
     ],

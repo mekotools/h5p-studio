@@ -36,6 +36,18 @@ trägt das Studio die Gestalt von **mekotools.de** (dort läuft MkDocs Material)
   (`js/anmeldung.js` reicht Drupals Zwischenseite in einem Zug weiter), nach der
   Anmeldung stehen dort der eigene Name und „Abmelden". Drupals eigene
   Anmeldeseite `/user/login` bleibt der Verwaltung vorbehalten.
+- **Bibliothek und Beitragsseiten im Stil des Werkzeugkatalogs:** Jeder Eintrag
+  trägt unter dem Titel eine **Beschreibung — was die Lektion enthält**
+  (Pflichtfeld `field_beschreibung`; ohne sie ist ein Titel allein nicht zu
+  deuten). Auf schmalen Geräten wird die Tafel zur Blockliste, nichts rollt
+  seitwärts; die Kopfleiste bricht um. Beitragsseiten sehen aus wie die
+  Werkzeugseiten auf mekotools.de: Rückweg, Titel, Beschreibung als Einleitung,
+  Angaben, Übung, Adresse zum Weitergeben. Siehe
+  `openspec/changes/004-bibliothek-und-beitragsseiten/`.
+- **Kein Brotkrümel:** Drupals Brotkrümel zeichnet eine numerierte Liste und
+  hieße auf der Startseite bloß „1. Startseite" — auf einer Beitragsseite fehlte
+  der Seitenname. Zurück in den Katalog führt der Verweis auf jeder
+  Beitragsseite.
 
 Die ganze Umgebung trägt dieselbe Gestalt: **Pocket ID** (Name, Hausfarbe,
 Zeichen, Favicon, Mailbild, Kunden) und **Tinyauth** (Titel, Hintergrund) werden

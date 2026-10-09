@@ -476,10 +476,12 @@ th .button {
   font-size: 0.85rem;
 }
 
-/* Auf schmalen Geräten bleibt die Tafel lesbar: sie rollt seitwärts, statt
- * Inhalte abzuschneiden oder die Seite zu sprengen. */
+/* Fremde Tafeln (Verwaltung, Berichte) rollen auf schmalen Geräten seitwärts,
+ * statt Inhalte abzuschneiden oder die Seite zu sprengen. Die Bibliothek ist
+ * davon ausgenommen: sie wird unten zur Blockliste, denn ein Katalog, den man
+ * auf dem Telefon waagerecht schieben muss, ist keiner. */
 @media (max-width: 44rem) {
-  .mt-inhalt table {
+  .mt-inhalt table:not(.mt-tafel) {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
@@ -597,4 +599,280 @@ hr {
   margin: 0;
   font-size: 0.82rem;
   opacity: 0.85;
+}
+
+/* --- Die Tafel der Bibliothek ---------------------------------------------
+ * Der Aufbau ist vom Werkzeugkatalog auf mekotools.de übernommen: feste
+ * Spaltenbreiten, ruhige Zeilen, die Beschreibung klein unter dem Namen (dort
+ * trägt sie die Klasse .mt-zusatz). Unterschied: Statt Symbolen stehen hier die
+ * Angaben, die das Studio kennt — Fach, Schlagworte, Datum der Änderung.
+ *
+ * Eigene Klassennamen (mt-tafel-*) statt der Katalog-Namen, weil .mt-werkzeug
+ * und .mt-zeichen in der Kopfleiste schon vergeben sind.
+ */
+.mt-tafel {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0 0 0.6rem;
+}
+
+.mt-tafel thead th {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--mt-text-leise);
+  border-bottom: 2px solid var(--mt-linie);
+  white-space: nowrap;
+}
+
+.mt-tafel tbody td {
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--mt-linie);
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.mt-tafel tbody tr:hover {
+  background: var(--mt-flaeche);
+}
+
+.mt-tafel-namezelle {
+  width: 40%;
+}
+
+.mt-tafel-datum {
+  width: 9rem;
+  white-space: nowrap;
+  color: var(--mt-text-leise);
+}
+
+.mt-tafel-spielzelle {
+  width: 6.5rem;
+  text-align: right;
+}
+
+.mt-tafel-name {
+  font-weight: 600;
+}
+
+/* Die Beschreibung — das, was beim Suchen entscheidet. */
+.mt-tafel-zusatz {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--mt-text-leise);
+}
+
+.mt-tafel-schlagworte {
+  color: var(--mt-text-leise);
+}
+
+.mt-tafel-spielen {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--mt-haus-dunkel);
+  border-radius: var(--mt-radius);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.mt-tafel-spielen:hover {
+  background: var(--mt-haus-dunkel);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* --- Die Beitragsseite eines Inhalts --------------------------------------
+ * Aufbau wie eine Werkzeugseite auf mekotools.de: Rückweg, Titel (vom
+ * Seitentitel-Block), Einleitung, Angaben, dann die Sache selbst.
+ */
+.mt-beitrag-rueckweg {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+}
+
+.mt-kurz {
+  margin: 0 0 0.5rem;
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.mt-angaben {
+  margin: 0 0 1.2rem;
+  font-size: 0.86rem;
+  color: var(--mt-text-leise);
+}
+
+/* Die Angaben stehen in einer Zeile: „Fach: Medienbildung  Schlagworte: …".
+ * Drupal liefert die Feldhülle und die Beschriftung als Blöcke — hier werden
+ * sie zu Fließtext, damit keine Spalte entsteht. */
+.mt-angaben .field,
+.mt-angaben .field > * {
+  display: inline;
+  margin: 0;
+}
+
+.mt-angaben .field {
+  margin-right: 1.1rem;
+}
+
+.mt-angaben .field__label::after {
+  content: ":";
+}
+
+.mt-angaben .field__item {
+  color: var(--mt-text);
+}
+
+.mt-uebung {
+  margin: 0 0 1.4rem;
+}
+
+/* Die Übung selbst: sie nimmt die Breite, die da ist — auf dem Telefon also
+ * die ganze Spalte. H5P rechnet mit der Breite seines Rahmens, deshalb darf der
+ * Rahmen nicht breiter sein als der Inhalt. */
+.mt-uebung .h5p-iframe-wrapper,
+.mt-uebung iframe {
+  max-width: 100%;
+}
+
+/* Adresse zum Weitergeben. */
+.h5p-studio-teilen {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem 1rem;
+  background: var(--mt-flaeche);
+  border: 1px solid var(--mt-linie);
+  border-left: 0.25rem solid var(--mt-haus);
+  border-radius: var(--mt-radius);
+}
+
+.h5p-studio-teilen h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.h5p-studio-teilen p {
+  margin: 0.5rem 0 0;
+  font-size: 0.86rem;
+  color: var(--mt-text-leise);
+}
+
+.h5p-studio-teilen input,
+.h5p-studio-adresse-feld {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--mt-text);
+  background: var(--mt-grund);
+  border: 1px solid var(--mt-linie);
+  border-radius: var(--mt-radius);
+}
+
+/* --- Schmale Geräte (Telefon) ---------------------------------------------
+ * Hier entscheidet sich, ob das Studio brauchbar ist. Zwei Regeln:
+ *   1. Die Bibliothek wird zur Blockliste — nichts rollt seitwärts.
+ *   2. Die Kopfleiste bricht um, statt über den Rand zu laufen (am 09.10.2026
+ *      bei 390 px gemessen: 9 px Überlauf, weil Rückweg und Konto nebeneinander
+ *      nicht passten).
+ * Die Blockliste trägt die Spaltennamen als Beschriftung mit, weil die
+ * Tabellenköpfe hier ausgeblendet sind.
+ */
+@media (max-width: 45.9em) {
+  .mt-tafel thead {
+    display: none;
+  }
+
+  .mt-tafel,
+  .mt-tafel tbody {
+    display: block;
+  }
+
+  .mt-tafel tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.6rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--mt-linie);
+  }
+
+  .mt-tafel tbody tr:hover {
+    background: none;
+  }
+
+  .mt-tafel td {
+    display: block;
+    padding: 0;
+    border: 0;
+    width: auto;
+  }
+
+  /* Titel und Beschreibung links, Abspielen rechts oben.
+   * Reihenfolge: Die Abspielzelle steht im Quelltext ganz hinten, muss aber
+   * oben rechts erscheinen — deshalb `order`. Achtung: `.mt-tafel-zelle` unten
+   * setzt ebenfalls `order`, deshalb steht die Abspielregel danach (gleiche
+   * Spezifität, die spätere gewinnt). */
+  .mt-tafel-namezelle {
+    flex: 1 1 10rem;
+    min-width: 0;
+    order: 1;
+  }
+
+  .mt-tafel-zelle {
+    flex: 0 0 auto;
+    order: 3;
+    font-size: 0.82rem;
+    color: var(--mt-text-leise);
+  }
+
+  .mt-tafel-spielzelle {
+    flex: 0 0 auto;
+    order: 2;
+    text-align: right;
+  }
+
+  .mt-tafel-zusatz {
+    font-size: 0.84rem;
+  }
+
+  /* Beschriftungen, die die ausgeblendeten Spaltenköpfe ersetzen. */
+  .mt-tafel-fach::before {
+    content: "Fach: ";
+  }
+
+  .mt-tafel-schlagworte::before {
+    content: "Schlagworte: ";
+  }
+
+  .mt-tafel-datum::before {
+    content: "Geändert: ";
+  }
+
+  .mt-tafel-spielen {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* Kopfleiste: umbrechen statt überlaufen. */
+  .mt-kopf-inhalt {
+    flex-wrap: wrap;
+    gap: 0.35rem 0.8rem;
+  }
+
+  .mt-rueckweg {
+    font-size: 0.86rem;
+  }
+
+  .mt-navi {
+    min-width: 0;
+  }
 }

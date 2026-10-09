@@ -1,0 +1,36 @@
+{#
+  Beitragsseite eines H5P-Inhalts.
+
+  Aufbau wie eine Werkzeugseite auf mekotools.de: Rückweg in den Katalog, dann
+  Titel (der kommt vom Seitentitel-Block), Einleitung, Angaben, Übung.
+
+  Die Beschreibung steht bewusst ganz oben. Sie sagt, was die Lektion enthält —
+  ohne sie ist ein Titel allein im Katalog nicht zu deuten. Fehlt sie, bleibt
+  die Zeile leer statt „unbekannt" zu behaupten.
+#}
+<div class="mt-beitrag">
+  <p class="mt-beitrag-rueckweg">
+    <a href="{{ path('mekotools_studio.bibliothek') }}">← Zurück zur Bibliothek</a>
+  </p>
+
+  {% if node.field_beschreibung.value is not empty %}
+    <div class="mt-kurz">{{ content.field_beschreibung }}</div>
+  {% endif %}
+
+  {% if node.field_fach.value is not empty or node.field_schlagworte.value is not empty %}
+    <div class="mt-angaben">
+      {{ content.field_fach }}
+      {{ content.field_schlagworte }}
+    </div>
+  {% endif %}
+
+  <div class="mt-uebung">
+    {{ content.field_h5p }}
+  </div>
+
+  {{ content.teilen }}
+
+  {# Alles Übrige (etwa Verweise des Knotens) — die oben ausdrücklich
+     gezeichneten Teile bleiben außen vor, damit nichts doppelt erscheint. #}
+  {{ content|without('field_beschreibung', 'field_fach', 'field_schlagworte', 'field_h5p', 'teilen') }}
+</div>

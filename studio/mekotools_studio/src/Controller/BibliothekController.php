@@ -71,12 +71,19 @@ class BibliothekController extends ControllerBase {
 
     $zeilen = [];
     foreach ($knoten as $eintrag) {
+      $adresse = Html::escape($this->adresse($eintrag));
+      $titelzelle = '<a class="mt-tafel-name" href="' . $adresse . '">'
+        . Html::escape($eintrag->label()) . '</a>';
+      $beschreibung = $this->beschreibung($eintrag);
+      if ($beschreibung !== '') {
+        $titelzelle .= '<span class="mt-tafel-zusatz">' . Html::escape($beschreibung) . '</span>';
+      }
       $zeilen[] = [
-        ['data' => ['#markup' => '<strong>' . Html::escape($eintrag->label()) . '</strong>']],
-        ['data' => ['#markup' => Html::escape($this->fach_name($eintrag))]],
-        ['data' => ['#markup' => Html::escape($this->schlagworte($eintrag))]],
-        ['data' => ['#markup' => Html::escape($this->kurz($eintrag))]],
-        ['data' => ['#markup' => '<a href="' . Html::escape($this->adresse($eintrag)) . '">Abspielen</a>']],
+        ['data' => ['#markup' => Markup::create($titelzelle)], 'class' => ['mt-tafel-namezelle']],
+        ['data' => ['#markup' => Html::escape($this->fach_name($eintrag))], 'class' => ['mt-tafel-zelle', 'mt-tafel-fach']],
+        ['data' => ['#markup' => Html::escape($this->schlagworte($eintrag))], 'class' => ['mt-tafel-zelle', 'mt-tafel-schlagworte']],
+        ['data' => ['#markup' => Html::escape($this->kurz($eintrag))], 'class' => ['mt-tafel-zelle', 'mt-tafel-datum']],
+        ['data' => ['#markup' => Markup::create('<a class="mt-tafel-spielen" href="' . $adresse . '">Abspielen</a>')], 'class' => ['mt-tafel-zelle', 'mt-tafel-spielzelle']],
       ];
     }
 
@@ -90,11 +97,21 @@ class BibliothekController extends ControllerBase {
     ];
 
     if ($zeilen) {
+      // Die Tafel trägt dieselben Klassen wie der Werkzeugkatalog auf
+      // mekotools.de (mt-tafel/mt-werkzeug/mt-zusatz) — daher sieht sie dort
+      // wie hier aus. Unter 46em wird sie per CSS zur Blockliste, damit auf dem
+      // Telefon nichts seitwärts rollt.
       $inhalt['tafel'] = [
         '#type' => 'table',
-        '#header' => ['Titel', 'Fach', 'Schlagworte', 'Zuletzt geändert', ''],
+        '#header' => [
+          ['data' => 'Titel', 'class' => ['mt-tafel-namezelle']],
+          ['data' => 'Fach', 'class' => ['mt-tafel-zelle']],
+          ['data' => 'Schlagworte', 'class' => ['mt-tafel-zelle']],
+          ['data' => 'Zuletzt geändert', 'class' => ['mt-tafel-zelle', 'mt-tafel-datum']],
+          ['data' => 'Abspielen', 'class' => ['mt-tafel-zelle', 'mt-tafel-spielzelle']],
+        ],
         '#rows' => $zeilen,
-        '#attributes' => ['class' => ['h5p-studio-bibliothek']],
+        '#attributes' => ['class' => ['mt-tafel']],
       ];
       $inhalt['pager'] = ['#type' => 'pager'];
     }
@@ -164,15 +181,23 @@ class BibliothekController extends ControllerBase {
   }
 
   /**
-   * Kurzbeschreibung (gekürzt) — hilft beim Wiederfinden.
+   * Die Beschreibung des Inhalts — was die Lektion enthält.
+   *
+   * Sie steht in der Bibliothek unter dem Titel (wie im Werkzeugkatalog
+   * unter dem Werkzeugnamen) und auf der Beitragsseite als Einleitung.
+   */
+  protected function beschreibung(Node $knoten) {
+    if (!$knoten->hasField('field_beschreibung') || $knoten->get('field_beschreibung')->isEmpty()) {
+      return '';
+    }
+    return trim(preg_replace('/\s+/u', ' ', (string) $knoten->get('field_beschreibung')->value));
+  }
+
+  /**
+   * Datum der letzten Änderung — eine Zeile, die nicht vom Bild ablenkt.
    */
   protected function kurz(Node $knoten) {
-    if (!$knoten->hasField('body') || $knoten->get('body')->isEmpty()) {
-      return \Drupal::service('date.formatter')->format($knoten->getChangedTime(), 'short');
-    }
-    $text = trim(strip_tags((string) $knoten->get('body')->value));
-    $text = preg_replace('/\s+/u', ' ', $text);
-    return \Drupal::service('date.formatter')->format($knoten->getChangedTime(), 'short') . ' · ' . mb_substr($text, 0, 90);
+    return \Drupal::service('date.formatter')->format($knoten->getChangedTime(), 'short');
   }
 
   /**
