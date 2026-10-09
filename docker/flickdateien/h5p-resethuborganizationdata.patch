@@ -1,0 +1,21 @@
+--- a/web/modules/contrib/h5p/src/H5PDrupal/H5PDrupal.php
++++ b/web/modules/contrib/h5p/src/H5PDrupal/H5PDrupal.php
+@@ -1411,4 +1411,18 @@
+   public function setContentHubMetadataChecked($time, $lang = 'en') {
+     // TODO: Implement setContentHubMetadataChecked() method.
+   }
++
++  /**
++   * {@inheritdoc}
++   *
++   * Nachtrag fuer h5p/h5p-core 1.28. H5P ruft diese Methode auf, wenn der Hub
++   * die Zugangsdaten mit 403 abweist: die Anbindung verwirft dann die
++   * hinterlegte Seitenkennung, damit sich die Seite neu anmelden kann. Das
++   * Drupal-Modul 2.0.0-beta1 bringt sie nicht mit (geprueft am 09.10.2026,
++   * auch im Zweig 2.0.x).
++   */
++  public function resetHubOrganizationData() {
++    $this->setOption('site_uuid', NULL);
++    \Drupal::state()->delete('h5p.hub_organization');
++  }
+ }

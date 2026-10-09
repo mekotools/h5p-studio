@@ -19,26 +19,34 @@ WORKDIR /opt/drupal
 # Feste Fassungen: H5P-Modul 2.0.0-beta1 (24.09.2025) ist die einzige Reihe für
 # Drupal 10.2/11; openid_connect 3.0.0-alpha9 trägt Drupal 10.2/11.
 #
-# h5p/h5p-core wird ausdrücklich auf 1.27.0 festgenagelt: die Grundbibliothek
-# 1.28.0 hat ihrer Schnittstelle die Methode resetHubOrganizationData()
-# hinzugefügt. Das Drupal-Modul 2.0.0-beta1 bringt die passende Anpassung
-# (H5PDrupal) noch nicht mit und bricht beim Einschalten ab:
+# h5p/h5p-core steht auf 1.28.0. 1.28 hat der Schnittstelle die Methode
+# resetHubOrganizationData() hinzugefügt, die das Drupal-Modul 2.0.0-beta1
+# (und auch sein Zweig 2.0.x, geprüft am 09.10.2026) nicht mitbringt. Ohne
+# Nachtrag bricht das Einschalten ab:
 #   "H5PDrupal contains 1 abstract method and must therefore be declared
 #    abstract or implement the remaining method
 #    (H5PFrameworkInterface::resetHubOrganizationData)"
-# Ohne diese Zeile zieht composer automatisch 1.28.0 und die Einrichtung
-# scheitert. Wenn das Modul nachzieht, darf die Zeile fallen.
+# 1.28 ist trotzdem nötig: neuer veröffentlichtes OER (u. a. aus dem H5P OER
+# Hub) verlangt coreApi 1.28 — 12 von 30 geprüften Beispielen wurden unter
+# 1.27 abgewiesen ("requires a newer version of the H5P plugin").
+# Der Nachtrag steht als Flickdatei unter docker/flickdateien/ und wird hier
+# angewendet; der Bau prüft anschliessend, dass er wirklich sitzt. Sobald das
+# Modul nachzieht, fällt beides weg (Flickdatei und Prüfzeilen).
+COPY docker/flickdateien/ /tmp/flickdateien/
 RUN composer require --no-interaction --no-progress --with-all-dependencies \
       "drupal/h5p:2.0.0-beta1" \
-      "h5p/h5p-core:1.27.0" \
+      "h5p/h5p-core:1.28.0" \
       "drupal/openid_connect:3.0.0-alpha9" \
       "drush/drush:^13.6" \
  && composer check-platform-reqs \
  && test -f web/modules/contrib/h5p/h5p.info.yml \
  && test -f web/modules/contrib/h5p/modules/h5peditor/h5peditor.info.yml \
  && test -f web/modules/contrib/openid_connect/openid_connect.info.yml \
- && ! grep -q resetHubOrganizationData vendor/h5p/h5p-core/h5p.classes.php \
- && echo "H5P, H5P-Editor und OIDC-Anmeldung liegen im Abbild (h5p-core 1.27.0)"
+ && grep -q resetHubOrganizationData vendor/h5p/h5p-core/h5p.classes.php \
+ && patch -p1 --forward < /tmp/flickdateien/h5p-resethuborganizationdata.patch \
+ && grep -q resetHubOrganizationData web/modules/contrib/h5p/src/H5PDrupal/H5PDrupal.php \
+ && php -l web/modules/contrib/h5p/src/H5PDrupal/H5PDrupal.php \
+ && echo "H5P (Kern 1.28.0, Nachtrag sitzt), H5P-Editor und OIDC-Anmeldung liegen im Abbild"
 
 # ---------------------------------------------------------------------------
 FROM drupal:11.4.8-apache
