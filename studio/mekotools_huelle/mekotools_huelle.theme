@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * MekoTools-Hülle — Vorbereitung der Seitenvariablen.
+ */
+
+/**
+ * Ergänzt die Kopfleiste um den Konto-Bereich.
+ *
+ * Warum im Gerüst und nicht im Modul: die Kopfleiste gehört zur Hülle, und die
+ * Hülle soll für sich stehen können.
+ *
+ * Der Anmelde-Verweis führt **direkt** zu Pocket ID. Drupals eigene Anmeldeseite
+ * (/user/login) wird bewusst nicht umgeleitet: dort meldet sich die Verwaltung
+ * mit einem lokalen Konto an. Für alle anderen ist der Weg über Pocket ID der
+ * einzige sichtbare.
+ */
+function mekotools_huelle_preprocess_page(array &$variablen): void {
+  $konto = \Drupal::currentUser();
+  $variablen['mekotools_angemeldet'] = $konto->isAuthenticated();
+  $variablen['mekotools_name'] = $konto->isAuthenticated() ? $konto->getDisplayName() : '';
+
+  // Anmeldekennung aus der Anmeldungs-Einrichtung des Hauses ableiten, statt sie
+  // fest einzutragen: wird der Kunde in Pocket ID umbenannt, zieht der Verweis mit.
+  $variablen['mekotools_anmeldung'] = '';
+  if (!$konto->isAuthenticated()) {
+    try {
+      // Drupals Zwischenseite „Über OpenID Connect anmelden": sie kennt den
+      // Anbieter und baut die Weiterleitung mit Sitzungsschlüssel und PKCE.
+      // Die Seite wird von js/anmeldung.js in einem Zug weitergereicht.
+      $variablen['mekotools_anmeldung'] = \Drupal\Core\Url::fromRoute('openid_connect.login')->toString();
+    }
+    catch (\Throwable $e) {
+      // Anmeldemodul fehlt oder Strecke unbekannt — lieber kein Verweis als
+      // einer ins Leere.
+      $variablen['mekotools_anmeldung'] = '';
+    }
+  }
+}

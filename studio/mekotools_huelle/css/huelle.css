@@ -193,13 +193,65 @@ code, kbd, samp {
 }
 
 .mt-rueckweg {
-  margin-left: auto;
   color: #ffffff;
   font-size: 0.85rem;
   padding: 0.3rem 0.6rem;
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: var(--mt-radius);
   white-space: nowrap;
+}
+
+/* --- Konto-Bereich in der Kopfleiste --------------------------------------
+ * Der Anmelde-Weg sitzt hier, nicht in Drupals eigener Anmeldeseite: die
+ * Kopfleiste ist der einzige Ort, den ein Besucher sicher findet. Der Verweis
+ * führt direkt zu Pocket ID — das sieht aus wie ein Schritt in derselben App,
+ * obwohl dahinter ein eigener Dienst steht.
+ */
+
+.mt-konto-bereich {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: none;
+}
+
+.mt-knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--mt-radius);
+  font-size: 0.85rem;
+  line-height: 1.2;
+  padding: 0.3rem 0.8rem;
+  white-space: nowrap;
+}
+
+.mt-knopf:hover,
+.mt-knopf:focus {
+  background: #ffffff;
+  color: var(--mt-haus-dunkel);
+  text-decoration: none;
+}
+
+.mt-knopf-leise {
+  background: transparent;
+}
+
+.mt-konto {
+  color: #ffffff;
+  font-size: 0.85rem;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mt-konto-name {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
 }
 
 .mt-rueckweg:hover,

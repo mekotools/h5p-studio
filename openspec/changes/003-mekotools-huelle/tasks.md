@@ -76,3 +76,38 @@ Bibliothek gelenkt hat. Beide sind behoben und am laufenden Dienst gemessen.
       findet `drush updatedb` den Schritt. Merksatz: bei einem Modul ohne
       Fassungsnummer im `.info.yml` immer nachsehen, ob der Schritt überhaupt
       angeboten wird, statt „No database updates required" zu glauben.
+
+## 7. Eine Umgebung statt vier Oberflächen (Anmeldung)
+
+Die Nahtstellen zwischen Katalog (mekotools.de), Anmeldedienst (Pocket ID),
+Sperre (Tinyauth) und Studio sollen aussehen wie **eine** Anwendung. Am
+09.10.2026 umgesetzt und am laufenden Dienst gemessen:
+
+- [x] 7.1 **Pocket ID trägt das Haus.** Name `MekoTools`, Hausfarbe (`teal`),
+      Hauszeichen als Bild der Anmeldeseite, Favicon, Mailbild. Die Bilder liegen
+      nicht in der Konfiguration, sondern hinter
+      `/api/application-images/{logo,favicon,email}`; der Schreibweg ist
+      `PUT` **multipart mit dem Feld `file`** (rohe Daten → 400).
+- [x] 7.2 **Anmeldekunden heißen nach dem Werkzeug, nicht nach dem Dienst.** Auf
+      der Zustimmungsseite steht „Sign in to H5P-Studio" bzw. „Sign in to
+      MekoTools" (vorher „Tinyauth"). Umbenannt über
+      `PUT /api/oidc/clients/{id}`; die Kennung bleibt gleich, Anmeldungen
+      laufen weiter. Jeder Kunde trägt zusätzlich das Hauszeichen
+      (`POST /api/oidc/clients/{id}/logo`) — sonst zeigt Pocket ID einen
+      Buchstaben. Nach der Anmeldung führt der Rückweg auf mekotools.de.
+- [x] 7.3 **Tinyauth trägt das Haus.** `TINYAUTH_UI_TITLE=MekoTools` und ein
+      eigener Hintergrund. Eigene Dateien liegen unter `/data/resources` und sind
+      **unter `/resources/…`** erreichbar (nicht unter dem nackten Namen — der
+      erste Versuch landete in der Oberfläche, HTTP 200 mit HTML statt Bild).
+- [x] 7.4 **Der Anmelde-Weg sitzt in der Kopfleiste des Studios** und führt
+      direkt zu Pocket ID; „Abmelden" erscheint, wenn jemand angemeldet ist.
+      Die Strecke `/openid-connect/{kunde}/initiate` des Moduls ist dafür
+      **nicht** geeignet: sie verlangt `?iss=` und antwortet sonst mit 403
+      (nur für den Anlauf vom Anmeldedienst selbst). Richtig ist Drupals
+      Zwischenseite `/user/login/openid_connect`; `js/anmeldung.js` reicht sie
+      in einem Zug weiter, wenn dort genau ein Anbieter steht. Ohne JavaScript
+      bleibt der Knopf — kein stiller Fehler.
+- [x] 7.5 Drupals eigene Anmeldeseite `/user/login` wird **nicht** umgeleitet:
+      dort meldet sich die Verwaltung mit einem lokalen Konto an. Der Umbiegen
+      hätte den Notfallweg genommen.
+

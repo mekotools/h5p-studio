@@ -32,6 +32,15 @@ trägt das Studio die Gestalt von **mekotools.de** (dort läuft MkDocs Material)
   von einem fremden Server; hier gilt die Systemschrift).
 - Verweise in einem dunkleren Türkis (`#007a6c`), damit sie auf weißem Grund gut
   lesbar sind — die Kopfleiste behält die Hausfarbe.
+- **Konto-Bereich in der Kopfleiste:** „Anmelden" führt direkt zu Pocket ID
+  (`js/anmeldung.js` reicht Drupals Zwischenseite in einem Zug weiter), nach der
+  Anmeldung stehen dort der eigene Name und „Abmelden". Drupals eigene
+  Anmeldeseite `/user/login` bleibt der Verwaltung vorbehalten.
+
+Die ganze Umgebung trägt dieselbe Gestalt: **Pocket ID** (Name, Hausfarbe,
+Zeichen, Favicon, Mailbild, Kunden) und **Tinyauth** (Titel, Hintergrund) werden
+von `ressourcen/pocket-id-einrichten.py` bzw. Zeilen in der `.env` des
+Anmelde-Stapels gestellt — siehe Skill `mekotools-auth-stack`.
 
 Gesetzt wird die Hülle als **Aktualisierungsschritt** (`mekotools_studio_update_10005`):
 Gerüst, Startseite `/bibliothek` („wer das Studio aufruft, sieht den Katalog"),

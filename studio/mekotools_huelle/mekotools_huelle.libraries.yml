@@ -3,3 +3,8 @@ huelle:
   css:
     theme:
       css/huelle.css: {}
+
+anmeldung:
+  version: 1.0.0
+  js:
+    js/anmeldung.js: {}

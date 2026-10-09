@@ -11,6 +11,7 @@
   `content` (Seitentitel und Inhalt) werden als Blöcke gesetzt; Kopfleiste und
   Fußzeile bringt die Vorlage mit.
 #}
+{{ attach_library('mekotools_huelle/anmeldung') }}
 <div class="mt-seite">
   <header class="mt-kopf" role="banner">
     <div class="mt-huelle mt-kopf-inhalt">
@@ -21,6 +22,18 @@
         <span class="mt-haus">MekoTools</span>
         <span class="mt-werkzeug">H5P-Studio</span>
       </a>
+      <span class="mt-konto-bereich">
+        {% if mekotools_angemeldet %}
+          <a class="mt-konto" href="{{ path('user.page') }}" title="Eigenes Konto">
+            <span class="mt-konto-name">{{ mekotools_name }}</span>
+          </a>
+          <a class="mt-knopf mt-knopf-leise" href="{{ path('user.logout') }}">Abmelden</a>
+        {% elseif mekotools_anmeldung %}
+          {# Führt direkt zu Pocket ID — Drupals eigene Anmeldeseite bleibt der
+             Verwaltung vorbehalten. #}
+          <a class="mt-knopf" href="{{ mekotools_anmeldung }}">Anmelden</a>
+        {% endif %}
+      </span>
       <a class="mt-rueckweg" href="https://mekotools.de/">Zurück zu MekoTools</a>
     </div>
   </header>
