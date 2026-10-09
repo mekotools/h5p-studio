@@ -60,8 +60,9 @@ doku:
 zugang:
   art: konto
   hinweis: 'Konto über die MekoTools-Anmeldung (auth.mekotools.de) — für dieses Werkzeug genügt
-    der Grundzugang (Stufe 1: angemeldet), dafür ist kein Antrag nötig. Die Anmeldung läuft über
-    einen Passkey. Lernende brauchen kein Konto: die fertige Übung läuft über ihre Adresse im
-    Browser. Wer weitergehende Werkzeuge braucht (etwa Shadowbroker), beantragt den bestätigten
-    Zugang (Stufe 2: Lehrkraft) unter studio.mekotools.de/zugang.'
+    der Grundzugang (Stufe 1: angemeldet); dafür ist kein Antrag nötig, Konto anlegen unter
+    auth.mekotools.de/signup. Die Anmeldung läuft über einen Passkey. Lernende brauchen kein
+    Konto: die fertige Übung läuft über ihre Adresse im Browser. Wer weitergehende Werkzeuge
+    braucht (etwa Shadowbroker), beantragt den bestätigten Zugang (Stufe 2: Lehrkraft) unter
+    studio.mekotools.de/zugang.'
 stand: '2026-10-09'

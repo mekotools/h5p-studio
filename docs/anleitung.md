@@ -17,9 +17,9 @@ Adresse: **https://studio.mekotools.de**
 
 ## Zugang bekommen
 
-1. Melde dich an der **MekoTools-Anmeldung** an: <https://auth.mekotools.de>. Das ist
-   der **Grundzugang** (Stufe 1, „angemeldet") — kostenlos, ohne Prüfung. Damit nutzt
-   du das H5P-Studio, Claper und Fuiz.
+1. Lege dir an der **MekoTools-Anmeldung** ein Konto an:
+   <https://auth.mekotools.de/signup>. Das ist der **Grundzugang** (Stufe 1, „angemeldet") —
+   kostenlos, ohne Prüfung. Damit nutzt du das H5P-Studio, Claper und Fuiz.
 2. Für weitergehende Werkzeuge — etwa Shadowbroker — brauchst du den **bestätigten
    Zugang** (Stufe 2, „Lehrkraft"). Dafür füllst du den Antrag aus:
    <https://studio.mekotools.de/zugang>. Die Verwaltung prüft ihn und schickt dir eine
