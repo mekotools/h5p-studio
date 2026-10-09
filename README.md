@@ -16,7 +16,29 @@ Läuft unter **`studio.mekotools.de`** (Stapel auf flip: der Web-Dienst am Netz
 | `drupal/openid_connect` | Anmeldung über **Pocket ID** (Passkey), **3.0.0-alpha9** |
 | `drush` | Einrichtung und Wartung auf der Kommandozeile |
 | `studio/mekotools_studio` | **eigener Aufsatz**: Inhaltsart „H5P-Inhalt", Feld, Fach/Schlagworte, Bibliotheksseite, Rolle „Lehrkraft", deutsche Beschriftungen, Datenschutz-Voreinstellung |
+| `studio/mekotools_huelle` | **eigenes Gerüst** (Thema) mit der Gestalt von mekotools.de |
 | `docker/eintritt.sh` | richtet beim ersten Start selbst ein (Datenbank, Sprache, Übersetzungen) und aktualisiert danach nur noch |
+
+## Die Hülle (MekoTools-Hülle)
+
+Wer das Studio aufruft, soll nicht auf einer fremden Website landen. Deshalb
+trägt das Studio die Gestalt von **mekotools.de** (dort läuft MkDocs Material):
+
+- Kopfleiste in der Hausfarbe **`#009485`**, Werkzeugkasten-Zeichen, Hausname über
+  dem Werkzeugnamen, immer sichtbarer Rückweg zu mekotools.de.
+- Gleiche Inhaltsbreite (61rem), gleiche Fußzeile mit Lizenzhinweis,
+  **hell und dunkel nach Systemeinstellung**.
+- **Keine fremden Schriftarten und keine Abrufe von außen** (Material lädt Roboto
+  von einem fremden Server; hier gilt die Systemschrift).
+- Verweise in einem dunkleren Türkis (`#007a6c`), damit sie auf weißem Grund gut
+  lesbar sind — die Kopfleiste behält die Hausfarbe.
+
+Gesetzt wird die Hülle als **Aktualisierungsschritt** (`mekotools_studio_update_10005`):
+Gerüst, Startseite `/bibliothek` („wer das Studio aufruft, sieht den Katalog"),
+Menü und Blockordnung. So hat auch eine frisch aufgebaute Instanz dieselbe
+Oberfläche, ohne Handarbeit.
+
+Für die **Verwaltung** bleibt Drupals eigene Oberfläche (Claro) zuständig.
 
 ## Warum nicht „OER Studio"?
 
