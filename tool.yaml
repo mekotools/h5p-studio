@@ -59,7 +59,8 @@ doku:
   aufwand_aufbereitung: mittel
 zugang:
   art: konto
-  hinweis: 'Konto über die MekoTools-Anmeldung (auth.mekotools.de). Zugang beantragen kann man im Studio
-    selbst unter studio.mekotools.de/zugang/antrag — die Verwaltung gibt frei und schickt die Einladung
-    per E-Mail. Lernende brauchen kein Konto: die fertige Übung läuft über ihre Adresse im Browser.'
+  hinweis: 'Konto über die MekoTools-Anmeldung (auth.mekotools.de). Zugang zu MekoTools
+    beantragt man unter studio.mekotools.de/zugang — ein Zugang gilt für alle Werkzeuge des
+    Hauses, nicht nur für dieses. Die Verwaltung gibt frei und schickt die Einladung per
+    E-Mail. Lernende brauchen kein Konto: die fertige Übung läuft über ihre Adresse im Browser.'
 stand: '2026-10-09'

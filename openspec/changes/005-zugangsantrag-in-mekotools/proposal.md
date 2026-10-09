@@ -1,62 +1,54 @@
-# Change 005 — Zugangsantrag nach MekoTools
+# Change 005 — Eine Antragsstrecke: Zugang zu MekoTools
 
 ## Warum
 
-Der Zugang zu MekoTools gilt für **alle** Bereiche (Studio, Shadowbroker, Fuiz,
-Claper …). Der Antrag darf deshalb nicht in einem einzelnen Werkzeug hängen —
-trotzdem liegt er heute ausschließlich im Studio.
+Für Nutzende sollen alle Apps **aus einem Guss** erscheinen. Wer Zugang will,
+beantragt deshalb keinen Zugang „zum Studio", sondern **zu MekoTools** — einen
+Zugang, der für alle Werkzeuge gilt (H5P-Studio, Shadowbroker, Fuiz …).
 
-Bestandsaufnahme am 09.10.2026:
+Heute steht das Gegenteil in der Welt:
 
-- Studio: Formular `/zugang` → Ablage `mekotools_studio_zugangsantrag` → Freigabe
-  in der Verwaltung → Einladung per E-Mail.
-- **Ablage leer: 0 Anträge.** Das Formular wurde noch nie benutzt.
-- mekotools.de ist eine statische Seite (MkDocs) und kann kein Formular
-  entgegennehmen. Im Katalog steht beim H5P-Studio derzeit sogar, man beantrage
-  den Zugang „im Studio selbst" — also genau das, was nicht gewünscht ist.
+- Die Seite heißt **„Zugang zum Studio beantragen"**, der Menüpunkt „Zugang
+  beantragen", das Formular beginnt mit „Das Studio steht … offen".
+- Die Anleitung im Werkzeug und der Werkzeugkatalog verweisen auf
+  `studio.mekotools.de/zugang/antrag` — **das liefert 404** (richtig ist
+  `/zugang`, am 09.10.2026 gemessen).
+- Der Katalog schreibt, man beantrage den Zugang „im Studio selbst".
 
-Auftrag (Wortlaut der Nutzerin/des Nutzers vom 09.10.2026):
+Auftrag (Wortlaut, 09.10.2026):
 
-> „Der Antrag auf Zugang zu MekoTools erfolgt nicht in Drupal / H5P-Studio
-> sondern in MekoTools, da er ja auch für andere Bereiche wie Shadowbroker gilt."
+> „Für den User sollen alle Apps aus einem Guss erscheinen. D.h. man beantragt
+> kein Zugang zu mekotools Studio, sondern zu mekotools. Wir können die
+> Antragsseite auch aus Drupal von mekotools einbinden, aber wir brauchen keinen
+> EXTRA Antrag von der Studio Seite aus."
 
-Nachfrage vom 09.10.2026: „Zugang beantragen ist doch jetzt in MekoTools oder,
-wofür brauchen wir das noch in Drupal?" — Die Antwort war: **nein, ist es
-nicht.** Dieser Change holt das nach.
+Daraus folgt: **kein zweiter Antrag, kein eigener Dienst.** Die vorhandene
+Strecke bleibt bestehen, wird aber zu der einen MekoTools-Strecke erklärt und
+benannt. Bestandsaufnahme: die Ablage ist leer (0 Anträge), es geht also nichts
+verloren.
 
 ## Was sich ändert
 
-1. **Eigener Antragsdienst** unter der MekoTools-Adresse
-   (`mekotools.de/antrag/`), über Traefik auf flip erreichbar, ohne Anmeldung —
-   wer noch kein Konto hat, kann sich ja nicht anmelden.
-2. **Dieselbe Ablage.** Der Dienst schreibt in die vorhandene Tabelle
-   `mekotools_studio_zugangsantrag`. Vorteil: Die **Freigabe** bleibt unverändert
-   in der Studio-Verwaltung (dort werden Stufen und Einladungen vergeben), und
-   es gibt keine zweite Wahrheit über offene Anträge.
-3. **Das Studio gibt das Formular ab.** `/zugang` leitet auf die neue Adresse um
-   (301, keine Doppelpflege); der Menüpunkt „Zugang beantragen" zeigt dorthin.
-   Die Verwaltungsseite `/verwaltung/zugangsantraege` bleibt.
-4. **Der Katalog wird richtiggestellt.** Im Werkzeug-Eintrag H5P-Studio steht
-   künftig die MekoTools-Adresse des Antrags, nicht die Studio-Adresse.
-5. **Schutz gegen Missbrauch**, weil das Formular offen im Netz steht:
-   Honigtopf-Feld, Mindestzeit zwischen Aufruf und Absenden, Höchstzahl je
-   Absender und Tag, Längen- und Formatprüfung (E-Mail, Name, Einrichtung).
-   Kein Captcha eines fremden Anbieters (Abrufe nach außen vermeiden).
+1. **Worte: MekoTools statt Studio.** Seitentitel, Menüpunkt, Einleitungstext des
+   Formulars, Bestätigungsseite („Dein Antrag auf Zugang zu MekoTools liegt
+   vor") und der Weg danach („Weiter zu MekoTools" statt „Zur Bibliothek") —
+   denn nach dem Antrag geht es nicht um das Studio, sondern um das Haus.
+2. **Eine Strecke, ausdrücklich.** Der Antrag bleibt technisch in Drupal
+   (Drupal kann ein Formular entgegennehmen, die Hauptseite des Katalogs ist
+   statisch), ist aber die **einzige** Antragsstrecke. Es entsteht keine zweite.
+3. **MekoTools bekommt die Seite.** Im Werkzeugkatalog (mekotools.de) entsteht
+   die Seite „Zugang zu MekoTools": ein Zugang für alle Werkzeuge, Weg zum
+   Formular, Ablauf (prüfen → Einladung → Passkey), wer einen Zugang bekommt,
+   was Lernende brauchen (nichts).
+4. **Falscher Verweis berichtigt.** Anleitung und Werkzeug-Metadaten nennen
+   künftig die richtige Adresse (`studio.mekotools.de/zugang`).
 
-## Offene Entscheidungen (vor dem Bau zu klären)
+## Grenzen und offener Rest
 
-- **Sprache/Technik des Dienstes:** kleines Python-Programm (Hausbrauch) oder
-  PHP im Studio-Abbild? Empfehlung: Python, ein Behälter, eigener Name.
-- **Bestätigungsmail an Antragstellende** („Antrag ist eingegangen") — sinnvoll,
-  kostet aber eine Mailvorlage. Empfehlung: ja, eine schlichte Mail.
-- **Zweiter Weg für Bestandskonten:** Soll der Antrag auch für Personen offen
-  sein, die schon ein Konto haben (Stufenaufstieg „angemeldet" → „Fachkraft")?
-  Heute ist es ein Zugangsantrag. Empfehlung: jetzt nicht mischen.
-
-## Grenzen
-
-- Die Ablage bleibt technisch im Studio-Abbild (Tabelle dort). Wer das radikal
-  trennen will (kein Werkzeug hat Sonderrechte), braucht Change 006: eigene
-  Datenbank und eigenes Verwaltungsfenster außerhalb des Studios.
-- Kein Antrag wird automatisch freigegeben. Jede Freigabe bleibt eine
-  menschliche Entscheidung einer Verwaltungskraft.
+- Die Seite läuft weiterhin unter der Adresse des Studios — das ist die einzige
+  verbleibende Naht. Wer sie schließen will, braucht einen eigenen Change
+  (eigene Adresse für die Antragsseite, etwa `mekotools.de/antrag` oder
+  `zugang.mekotools.de` über Traefik). Nicht Teil dieses Changes: es kostet
+  Maschinerie, solange die Seite selbst „MekoTools" sagt.
+- Freigabe und Einladung bleiben in der Studio-Verwaltung (dort werden Stufen
+  und Konten vergeben). Das ist kein zweiter Antrag, sondern die Bearbeitung.

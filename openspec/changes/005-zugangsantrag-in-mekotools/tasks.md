@@ -1,41 +1,47 @@
-# Aufgaben — Change 005: Zugangsantrag nach MekoTools
+# Aufgaben — Change 005: Eine Antragsstrecke (Zugang zu MekoTools)
 
-## 1. Vorbereitung
+## 1. Worte im Antragsweg
 
-- [x] 1.1 Bestandsaufnahme: Antrag liegt nur im Studio; Ablage leer (0 Anträge)
-- [ ] 1.2 Entscheidung einholen: Technik des Dienstes, Bestätigungsmail,
-      Umfang (nur Zugang oder auch Stufenaufstieg)
-- [ ] 1.3 Formularworte und Pflichtfelder aus dem Studio übernehmen
-      (`ZugangsantragForm` als Vorlage für Text und Prüfungen)
+- [x] 1.1 Streckentitel: „Zugang zu MekoTools beantragen"
+      (`mekotools_studio.routing.yml`)
+- [x] 1.2 Menüpunkt: „Zugang zu MekoTools", Beschreibung „ein Zugang gilt für
+      alle Werkzeuge" (`mekotools_studio.links.menu.yml`)
+- [x] 1.3 Formulareinleitung: „MekoTools steht Lehrkräften und Fachkräften …
+      offen. Ein Zugang gilt für alle Werkzeuge — das H5P-Studio, Shadowbroker
+      und alles, was noch dazukommt." (`ZugangsantragForm`)
+- [x] 1.4 Bestätigungsseite: „Dein Antrag auf Zugang zu MekoTools liegt vor",
+      „Der Zugang gilt dann für alle MekoTools-Werkzeuge", Weg danach
+      „Weiter zu MekoTools" statt „Zur Bibliothek" (`ZugangController`)
+- [x] 1.5 Verwaltungsbeschreibung: „Anträge auf Zugang zu MekoTools einsehen und
+      freigeben" (`mekotools_studio.links.menu.yml`, Abschnitt admin)
 
-## 2. Antragsdienst
+## 2. MekoTools-Seite im Katalog
 
-- [ ] 2.1 Kleiner Dienst mit zwei Seiten: Formular (GET) und Bestätigung (POST)
-- [ ] 2.2 Schreibt in die vorhandene Tabelle `mekotools_studio_zugangsantrag`
-      (gleiche Spalten wie das Studio-Formular)
-- [ ] 2.3 Schutz: Honigtopf, Mindestzeit, Höchstzahl je Absender/Tag,
-      Formatprüfung; keine fremden Abrufe (kein Captcha-Dienst)
-- [ ] 2.4 Deutsche Beschriftungen, Gestalt der Hülle (Hausfarbe, hell/dunkel,
-      mobil einreihig) — dieselbe Sprache wie Katalog und Studio
+- [x] 2.1 Neue Seite `docs/zugang.md`: ein Zugang für alle Werkzeuge, Weg zum
+      Formular, Ablauf, wer einen Zugang bekommt, was Lernende brauchen (nichts)
+- [x] 2.2 Katalog-Navigation: Eintrag „Zugang zu MekoTools" hinter dem
+      Werkzeugkatalog
 
-## 3. Einbinden
+## 3. Falschen Verweis berichtigen
 
-- [ ] 3.1 Traefik-Router `mekotools.de/antrag/` (eigener Behälter auf flip)
-- [ ] 3.2 Studio: `/zugang` dauerhaft umleiten, Menüpunkt zeigt nach MekoTools
-- [ ] 3.3 Katalog: Eintrag H5P-Studio auf die neue Adresse richtigstellen
-- [ ] 3.4 Verwaltung im Studio unverändert lassen (Freigabe + Einladung)
+- [x] 3.1 `tool.yaml` im Werkzeug-Repo: „Zugang zu MekoTools beantragt man unter
+      studio.mekotools.de/zugang" (statt `/zugang/antrag`, das 404 liefert)
+- [x] 3.2 `docs/anleitung.md`: „Einen Zugang zu MekoTools … gilt für alle
+      Werkzeuge" + richtige Adresse
+- [x] 3.3 Katalog neu bauen, damit Werkzeugtafel und Werkzeugseite die neuen
+      Texte tragen
 
 ## 4. Nachweis
 
-- [ ] 4.1 Probelauf: Antrag abschicken → erscheint in der Studio-Verwaltung →
-      freigeben → Einladung kommt an → Konto anlegbar (echter Durchlauf)
-- [ ] 4.2 Gegenproben: Honigtopf greift, zu schnelles Absenden greift,
-      fehlerhafte E-Mail wird abgewiesen, Mengenbegrenzung greift
-- [ ] 4.3 Mobil und hell/dunkel nachmessen (390 px, Überlauf 0)
-- [ ] 4.4 Fertigungslauf grün, ausliefern, Fingerabdruck notieren
+- [ ] 4.1 Gemessen: `/zugang` liefert 200, Überschrift und Einleitung sagen
+      „MekoTools" (nicht „Studio"), Menüpunkt heißt „Zugang zu MekoTools"
+- [ ] 4.2 Katalogseite „Zugang zu MekoTools" online erreichbar; ihr Verweis führt
+      auf das Formular (HTTP 200)
+- [ ] 4.3 Kein zweiter Antrag: genau eine Strecke (`/zugang`), überall dieselbe
+- [ ] 4.4 Fertigungslauf grün, ausgeliefert, Fingerabdruck notieren
 
 ## 5. Hausordnung
 
-- [ ] 5.1 README und Katalog-Anleitung fortschreiben
-- [ ] 5.2 Lehren in Skill festhalten (Schnittstelle zwischen zwei Behältern,
-      gemeinsame Tabelle, Schutz offener Formulare)
+- [ ] 5.1 README des Werkzeug-Repos fortschreiben
+- [ ] 5.2 Lehre im Skill festhalten: Worte gehören dem Haus, nicht dem einzelnen
+      Werkzeug; ein Zugang, eine Strecke

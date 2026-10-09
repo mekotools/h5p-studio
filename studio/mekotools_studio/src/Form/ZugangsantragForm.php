@@ -7,7 +7,12 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\mekotools_studio\Antragsspeicher;
 
 /**
- * Öffentlicher Antrag auf Zugang zum Studio.
+ * Öffentlicher Antrag auf Zugang zu MekoTools.
+ *
+ * Der Zugang gilt für alle Werkzeuge des Hauses, nicht für das Studio allein —
+ * deshalb steht hier auch MekoTools und nicht der Name eines Werkzeugs. Die
+ * Seite liegt nur technisch im Studio (Drupal kann ein Formular entgegennehmen,
+ * die Hauptseite ist statisch); sie ist die einzige Antragsstrecke.
  *
  * Diese Seite ist ohne Anmeldung erreichbar — wer noch keinen Zugang hat, kann
  * sich hier melden. Der Antrag landet in einer Liste, die die Verwaltung
@@ -27,8 +32,9 @@ class ZugangsantragForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['hinweis'] = [
-      '#markup' => '<p>Das Studio steht Lehrkräften und Fachkräften aus Bildung und Beratung offen. '
-      . 'Trag dich hier ein — wir prüfen den Antrag und schicken dir anschließend eine Einladung per E-Mail. '
+      '#markup' => '<p>MekoTools steht Lehrkräften und Fachkräften aus Bildung und Beratung offen. '
+      . 'Ein Zugang gilt für alle Werkzeuge — das H5P-Studio, Shadowbroker und alles, was noch dazukommt. '
+      . 'Trag dich hier ein: Wir prüfen den Antrag und schicken dir anschließend eine Einladung per E-Mail. '
       . 'Mit dieser Einladung legst du einen Passkey an; ein Kennwort brauchst du nicht.</p>',
     ];
 

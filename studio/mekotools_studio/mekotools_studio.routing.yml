@@ -19,7 +19,7 @@ mekotools_studio.zugang:
   path: '/zugang'
   defaults:
     _form: '\Drupal\mekotools_studio\Form\ZugangsantragForm'
-    _title: 'Zugang zum Studio beantragen'
+    _title: 'Zugang zu MekoTools beantragen'
   requirements:
     _permission: 'access content'
 

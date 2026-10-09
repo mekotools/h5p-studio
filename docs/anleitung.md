@@ -11,12 +11,14 @@ Adresse: **https://studio.mekotools.de**
 
 - Einen Rechner mit Browser (Tablet geht zum Nachschauen, zum Bauen ist ein Rechner
   angenehmer).
-- Einen Zugang zum Studio — ein Konto bei der MekoTools-Anmeldung (siehe unten).
+- Einen Zugang zu **MekoTools** — ein Konto bei der MekoTools-Anmeldung (siehe
+  unten). Ein Zugang gilt für alle Werkzeuge des Hauses, nicht nur für das Studio.
 - Für die Klasse später: **nichts** außer der Adresse der fertigen Übung.
 
 ## Zugang bekommen
 
-1. Öffne **https://studio.mekotools.de/zugang/antrag** und fülle den Antrag aus.
+1. Öffne **https://studio.mekotools.de/zugang** und fülle den Antrag aus. Er gilt für
+   MekoTools insgesamt — du brauchst ihn nur einmal.
 2. Die Verwaltung prüft ihn und schickt eine **Einladung per E-Mail**. Darin steht
    ein Link, mit dem das Konto eingerichtet wird.
 3. Danach meldest du dich auf der Startseite über **Anmelden** an. Auf der
