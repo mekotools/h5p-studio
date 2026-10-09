@@ -3,13 +3,27 @@
 # Start:            cd /poolio/docker/mekotools-h5p-studio && docker compose up -d
 #
 # Zwei Behälter, bewusst:
-#  * web — unser eigenes Abbild (Drupal 11 + H5P-Modul + eigener Aufsatz).
-#  * db  — MariaDB für Inhalte, Konten, Einstellungen.
+#  * web         — unser eigenes Abbild (Drupal 11 + H5P-Modul + eigener Aufsatz).
+#  * datenbank   — MariaDB für Inhalte, Konten, Einstellungen.
 #
-# WICHTIG zu den Kennzeichnungen: dieser Behälter hängt an ZWEI Netzen (coolify
-# und dem Stapelnetz zur Datenbank). Deshalb darf `traefik.docker.network` hier
-# NICHT gesetzt werden — der Vermittler würde den Behälter sonst vollständig
-# überspringen und die Adresse antwortete mit seinem eigenen 404.
+# Netze, nach Hausordnung:
+#  * web hängt an `coolify` (damit der Verwalter es erreicht) UND am eigenen
+#    Stapelnetz `intern` (zur Datenbank).
+#  * Die Datenbank hängt AUSSCHLIESSLICH an `intern` — ein Dienst im Netz des
+#    gesamten Projekts wäre für jeden anderen Behälter offen.
+#  * Weil der Behälter an zwei Netzen hängt, muss `traefik.docker.network`
+#    ausdrücklich gesetzt werden, sonst rät der Verwalter und überspringt den
+#    Behälter unter Umständen.
+#
+# Zwei Fallen, am 09.10.2026 schmerzhaft gelernt und deshalb hier vermerkt:
+#  1. Eine scheiternde Gesundheitsprobe führt dazu, dass der Verwalter den
+#     Behälter GAR NICHT als Ziel führt — die Adresse antwortet dann mit seinem
+#     eigenen 404 (text/plain, 19 Byte), obwohl alle Kennzeichnungen stimmen.
+#     Deshalb erlaubt die Adressprüfung der Anwendung ausdrücklich 127.0.0.1.
+#  2. Der Dienst heißt NICHT "db". Im Netz `coolify` tragen fremde Stapel
+#     (mekotools-opencut-db, mekotools-claper-db) denselben kurzen Namen; Docker
+#     löst ihn über alle Netze des Behälters auf, und die Anwendung landete
+#     dadurch beim fremden Dienst ("Connection refused").
 services:
   web:
     # Festgenagelt auf den Verdauungswert aus der Fertigung (im Protokoll des
@@ -21,13 +35,14 @@ services:
     restart: unless-stopped
     env_file: .env
     depends_on:
-      db:
+      datenbank:
         condition: service_healthy
     volumes:
       - daten:/daten
     networks: [coolify, intern]
     labels:
       - traefik.enable=true
+      - traefik.docker.network=coolify
       - traefik.http.routers.mekotools-h5p-studio.rule=Host(`h5p-studio.mekotools.de`)
       - traefik.http.routers.mekotools-h5p-studio.entrypoints=http
       - traefik.http.middlewares.mekotools-scheme-h5p-studio.headers.customrequestheaders.X-Forwarded-Host=h5p-studio.mekotools.de
@@ -36,13 +51,8 @@ services:
       - traefik.http.routers.mekotools-h5p-studio.middlewares=mekotools-scheme-h5p-studio
       - traefik.http.services.mekotools-h5p-studio.loadbalancer.server.port=80
 
-  db:
+  datenbank:
     image: mariadb:11.4
-    # ACHTUNG Namenswahl: der Dienst heißt absichtlich NICHT "db". Im Netz
-    # `coolify` liegt bereits ein fremder Dienst mit dem Namen "db"; Docker
-    # löst einen kurzen Namen über alle Netze des Behälters auf, und die
-    # Web-Anwendung landete dadurch beim fremden Dienst (Verbindung
-    # abgelehnt). Mit container_name als Ansprechnamen ist es eindeutig.
     container_name: mekotools-h5p-studio-db
     restart: unless-stopped
     command: >-

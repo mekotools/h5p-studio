@@ -75,7 +75,7 @@ cat >> "$SETTINGS" <<PHP
 \$settings['hash_salt'] = '$SALT';
 \$settings['file_private_path'] = '$PRIVAT';
 \$settings['config_sync_directory'] = '$DATEN/config/sync';
-\$settings['trusted_host_patterns'] = ['^$(printf '%s' "$HOST" | sed -e 's/\./\\./g')\$', '^localhost\$'];
+\$settings['trusted_host_patterns'] = ['^$(printf '%s' "$HOST" | sed -e 's/\./\\./g')\$', '^localhost\$', '^127\\.0\\.0\\.1\$'];
 // Die Verschlüsselung endet am VPS; der Vermittler setzt die Kopfzeilen.
 \$settings['reverse_proxy'] = TRUE;
 \$settings['reverse_proxy_addresses'] = ['$PROXY_NETZ'];
