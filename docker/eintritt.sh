@@ -122,13 +122,33 @@ anmeldung_einrichten() {
   #  * Die Verhaltensschalter sitzen in den MODULEINSTELLUNGEN; am Kunden
   #    abgelegt bleiben sie wirkungslos. Sie werden typisiert gesetzt, nicht als
   #    Zeichenkette — sonst steht später Text statt einer Zuordnung darin.
+  # Die Endpunkte holt sich das Modul NICHT von selbst: die Selbst-Erkundung
+  # läuft nur im Formular und legt das Ergebnis dort ab. Ohne sie bleibt der
+  # Anmeldebeginn leer. Deshalb wird das Ausstellerdokument hier gelesen.
   STUDIO_OIDC_GRUPPE="$GRUPPE" drush php:eval '
+    $aussteller = rtrim(getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de", "/");
     $werte = [
       "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
       "client_secret" => getenv("STUDIO_OIDC_GEHEIM"),
-      "issuer_url" => getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de",
+      "issuer_url" => $aussteller,
       "scopes" => ["openid", "profile", "email", "groups"],
     ];
+    try {
+      $antwort = \Drupal::httpClient()->get($aussteller . "/.well-known/openid-configuration", ["timeout" => 15]);
+      $daten = json_decode((string) $antwort->getBody(), TRUE) ?: [];
+      foreach (["authorization_endpoint", "token_endpoint", "userinfo_endpoint", "end_session_endpoint"] as $schluessel) {
+        if (!empty($daten[$schluessel])) {
+          $werte[$schluessel] = $daten[$schluessel];
+        }
+      }
+      $fehlend = array_diff(["authorization_endpoint", "token_endpoint", "userinfo_endpoint"], array_keys($werte));
+      echo $fehlend
+        ? "WARNUNG: Ausstellerdokument unvollstaendig, es fehlt: " . implode(",", $fehlend) . "\n"
+        : "Endpunkte aus dem Ausstellerdokument uebernommen\n";
+    }
+    catch (\Throwable $e) {
+      echo "WARNUNG: Ausstellerdokument nicht lesbar: " . $e->getMessage() . "\n";
+    }
     $gruppe = getenv("STUDIO_OIDC_GRUPPE") ?: "lehrkraefte";
     $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
     $kunde = $speicher->load("pocketid");
