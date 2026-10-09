@@ -109,6 +109,10 @@ anmeldung_einrichten() {
     return 0
   fi
   melden "Anmeldung über Pocket ID einrichten"
+
+  # Am KUNDEN stehen nur die Angaben, die den Anbieter betreffen. Die
+  # Verhaltensschalter (Anzeige im Anmeldeformular, Rollenzuordnung, Merkmale)
+  # sitzen in den MODULEINSTELLUNGEN — am Kunden abgelegt bleiben sie wirkungslos.
   drush php:eval '
     $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
     $client = $speicher->load("pocketid") ?: $speicher->create(["id" => "pocketid"]);
@@ -119,15 +123,28 @@ anmeldung_einrichten() {
       "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
       "client_secret" => getenv("STUDIO_OIDC_GEHEIM"),
       "issuer_url" => getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de",
-      "scopes" => ["openid", "profile", "email"],
-      "user_login_display" => "above",
-      "autostart_login" => FALSE,
-      "connect_existing_users" => TRUE,
-      "always_save_userinfo" => TRUE,
+      "scopes" => ["openid", "profile", "email", "groups"],
     ]);
     $client->save();
-    echo "Anmeldung eingerichtet: " . $client->id() . "\n";
+    echo "Kunde eingerichtet: " . $client->id() . "\n";
   ' || warnen "Anmeldung konnte nicht eingerichtet werden"
+
+  GRUPPE="${STUDIO_OIDC_GRUPPE:-lehrkraefte}"
+  drush config:set openid_connect.settings user_login_display above -y >/dev/null 2>&1
+  drush config:set openid_connect.settings always_save_userinfo true -y >/dev/null 2>&1
+  drush config:set openid_connect.settings autostart_login false -y >/dev/null 2>&1
+  # KEIN Verknüpfen mit bestehenden Konten: sonst könnte, wer dieselbe Adresse
+  # wie das Notfallkonto benutzt, an dessen Rechte kommen. Lehrkräfte bekommen
+  # ein eigenes Konto.
+  drush config:set openid_connect.settings connect_existing_users false -y >/dev/null 2>&1
+  drush config:set openid_connect.settings userinfo_mappings \
+    '{"mail":"email","name":"preferred_username"}' --input-format=json -y >/dev/null 2>&1
+  # Wer im Anmeldedienst in der Gruppe ist, bekommt hier die Rolle Lehrkraft.
+  # Beide Schreibweisen, weil das Merkmal den Namen oder die Anzeige tragen kann.
+  drush config:set openid_connect.settings role_mappings \
+    "{\"lehrkraft\":[\"$GRUPPE\",\"Lehrkräfte\"]}" --input-format=json -y >/dev/null 2>&1
+  drush config:set openid_connect.settings force_reset_role_mappings true -y >/dev/null 2>&1
+  melden "Anmeldung eingerichtet, Rolle Lehrkraft an die Gruppe $GRUPPE gebunden"
 }
 
 # --- 3b. Einrichten oder aktualisieren --------------------------------------
