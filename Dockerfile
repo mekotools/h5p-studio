@@ -23,7 +23,10 @@ RUN composer require --no-interaction --no-progress --with-all-dependencies \
       "drupal/openid_connect:3.0.0-alpha9" \
       "drush/drush:^13.6" \
  && composer check-platform-reqs \
- && ls -d web/modules/contrib/h5p web/modules/contrib/h5peditor web/modules/contrib/openid_connect
+ && test -f web/modules/contrib/h5p/h5p.info.yml \
+ && test -f web/modules/contrib/h5p/modules/h5peditor/h5peditor.info.yml \
+ && test -f web/modules/contrib/openid_connect/openid_connect.info.yml \
+ && echo "H5P, H5P-Editor und OIDC-Anmeldung liegen im Abbild"
 
 # ---------------------------------------------------------------------------
 FROM drupal:11.4.8-apache
