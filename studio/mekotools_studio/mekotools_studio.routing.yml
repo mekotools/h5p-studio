@@ -31,11 +31,31 @@ mekotools_studio.zugang_erhalten:
   requirements:
     _permission: 'access content'
 
-# Freigabeseite — nur für die Verwaltung.
+# Freigabeseite — nur für die Verwaltung. Die Übersicht zeigt nur an; das
+# Anlegen des Kontos und das Verschicken der Einladung haben je eine eigene
+# Bestätigungsseite, weil sie folgenreich sind.
 mekotools_studio.antraege:
   path: '/verwaltung/zugangsantraege'
   defaults:
-    _form: '\Drupal\mekotools_studio\Form\AntraegeVerwaltenForm'
+    _controller: '\Drupal\mekotools_studio\Controller\AntraegeController::seite'
     _title: 'Zugangsanträge'
   requirements:
     _permission: 'zugangsantraege verwalten'
+
+mekotools_studio.antrag_freigeben:
+  path: '/verwaltung/zugangsantraege/freigeben/{nummer}'
+  defaults:
+    _form: '\Drupal\mekotools_studio\Form\FreigabeForm'
+    _title: 'Zugang freigeben'
+  requirements:
+    _permission: 'zugangsantraege verwalten'
+    nummer: '\d+'
+
+mekotools_studio.antrag_ablehnen:
+  path: '/verwaltung/zugangsantraege/ablehnen/{nummer}'
+  defaults:
+    _form: '\Drupal\mekotools_studio\Form\AblehnungForm'
+    _title: 'Antrag ablehnen'
+  requirements:
+    _permission: 'zugangsantraege verwalten'
+    nummer: '\d+'
