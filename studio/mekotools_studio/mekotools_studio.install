@@ -197,28 +197,8 @@ function mekotools_studio_install() {
     ->setComponent('field_schlagworte', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 3]);
   $view->save();
 
-  // 7. Rolle „Lehrkraft": anlegen und Inhalte verwalten dürfen.
-  $rolle = Role::load('lehrkraft') ?: Role::create([
-    'id' => 'lehrkraft',
-    'label' => 'Lehrkraft',
-  ]);
-  $rechte = [
-    'access content',
-    'view own unpublished content',
-    'create h5p_inhalt content',
-    'edit any h5p_inhalt content',
-    'delete any h5p_inhalt content',
-    'access h5p editor',
-    'create terms in faecher',
-    'create terms in schlagworte',
-    'use text format basic_html',
-    'use text format restricted_html',
-    'access site reports',
-  ];
-  foreach ($rechte as $recht) {
-    $rolle->grantPermission($recht);
-  }
-  $rolle->save();
+  // 7. Rollen der Stufenleiter (Rechte siehe _mekotools_studio_stufenrechte).
+  mekotools_studio_stufenrechte_setzen();
 
   // 8. Datenschutz: die Voreinstellung des H5P-Bausteins sendet Nutzungsdaten
   // an h5p.org. Das schalten wir ab. Der Abruf des Inhaltstypen-Verzeichnisses
@@ -391,4 +371,95 @@ function mekotools_studio_update_10002(&$sandbox) {
 function mekotools_studio_update_10001(&$sandbox) {
   mekotools_studio_sicherstellen();
   return 'Tabelle der Zugangsanträge und Rolle „Verwaltung" eingerichtet.';
+}
+
+/**
+ * Die Rechte je Stufe.
+ *
+ * Die Liste ist bewusst nach dem getrennt, was eine Stufe ZUSÄTZLICH kann;
+ * beim Setzen werden die unteren Stufen mitgegeben (Leiter). Anlegen darf
+ * bereits Stufe 1: H5P-Inhalte erstellen und die eigenen pflegen — auch ohne
+ * Bestätigung als Lehrkraft. Stufe 2 kommt hinzu: fremde Inhalte pflegen,
+ * Auswertungen über alle Inhalte, Berichte. Stufe 3 verwaltet Zugänge.
+ */
+function _mekotools_studio_stufenrechte() {
+  return [
+    'angemeldet' => [
+      'access content',
+      'access h5p editor',
+      'create h5p_inhalt content',
+      'edit own h5p_inhalt content',
+      'delete own h5p_inhalt content',
+      'view own unpublished content',
+      'create terms in faecher',
+      'create terms in schlagworte',
+      'create terms in tags',
+      'use text format basic_html',
+      'use text format restricted_html',
+      'access own h5p results',
+      'copy own h5ps',
+      'download own h5ps',
+      'embed own h5ps',
+      'create restricted h5p content types',
+    ],
+    'lehrkraft' => [
+      'edit any h5p_inhalt content',
+      'delete any h5p_inhalt content',
+      'access all h5p results',
+      'copy all h5ps',
+      'download all h5ps',
+      'embed all h5ps',
+      'access site reports',
+    ],
+    'verwaltung' => [
+      'zugangsantraege verwalten',
+      'access site reports',
+    ],
+  ];
+}
+
+/**
+ * Setzt die Rechte aller drei Rollen (wiederholbar).
+ */
+function mekotools_studio_stufenrechte_setzen() {
+  $stufen = ['angemeldet' => 1, 'lehrkraft' => 2, 'verwaltung' => 3];
+  $bezeichnung = [
+    'angemeldet' => 'Angemeldet (Stufe 1)',
+    'lehrkraft' => 'Fachkraft bestätigt (Stufe 2)',
+    'verwaltung' => 'Verwaltung (Stufe 3)',
+  ];
+  $rechte = _mekotools_studio_stufenrechte();
+  foreach ($stufen as $rolle_id => $nummer) {
+    $rolle = Role::load($rolle_id) ?: Role::create([
+      'id' => $rolle_id,
+      'label' => $bezeichnung[$rolle_id],
+    ]);
+    $rolle->set('label', $bezeichnung[$rolle_id]);
+    foreach ($rechte as $tier => $liste) {
+      if ($stufen[$tier] > $nummer) {
+        continue;
+      }
+      foreach ($liste as $recht) {
+        if (!$rolle->hasPermission($recht)) {
+          $rolle->grantPermission($recht);
+        }
+      }
+    }
+    $rolle->save();
+  }
+}
+
+/**
+ * Anlegen darf schon Stufe 1.
+ *
+ * Bis hierher durfte nur die Rolle „Lehrkraft" Inhalte anlegen. Auf Wunsch
+ * dürfen das auch angemeldete, noch nicht bestätigte Menschen — die
+ * Bestätigung entscheidet über fremde Inhalte und Auswertungen, nicht über das
+ * Anlegen der eigenen.
+ */
+function mekotools_studio_update_10004(&$sandbox) {
+  mekotools_studio_stufenrechte_setzen();
+  $angemeldet = Role::load('angemeldet');
+  return 'Rechte der Stufen gesetzt: Stufe 1 darf H5P-Inhalte anlegen und die eigenen pflegen ('
+    . count($angemeldet->getPermissions()) . ' Rechte).';
 }
