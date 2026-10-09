@@ -18,15 +18,27 @@ WORKDIR /opt/drupal
 
 # Feste Fassungen: H5P-Modul 2.0.0-beta1 (24.09.2025) ist die einzige Reihe für
 # Drupal 10.2/11; openid_connect 3.0.0-alpha9 trägt Drupal 10.2/11.
+#
+# h5p/h5p-core wird ausdrücklich auf 1.27.0 festgenagelt: die Grundbibliothek
+# 1.28.0 hat ihrer Schnittstelle die Methode resetHubOrganizationData()
+# hinzugefügt. Das Drupal-Modul 2.0.0-beta1 bringt die passende Anpassung
+# (H5PDrupal) noch nicht mit und bricht beim Einschalten ab:
+#   "H5PDrupal contains 1 abstract method and must therefore be declared
+#    abstract or implement the remaining method
+#    (H5PFrameworkInterface::resetHubOrganizationData)"
+# Ohne diese Zeile zieht composer automatisch 1.28.0 und die Einrichtung
+# scheitert. Wenn das Modul nachzieht, darf die Zeile fallen.
 RUN composer require --no-interaction --no-progress --with-all-dependencies \
       "drupal/h5p:2.0.0-beta1" \
+      "h5p/h5p-core:1.27.0" \
       "drupal/openid_connect:3.0.0-alpha9" \
       "drush/drush:^13.6" \
  && composer check-platform-reqs \
  && test -f web/modules/contrib/h5p/h5p.info.yml \
  && test -f web/modules/contrib/h5p/modules/h5peditor/h5peditor.info.yml \
  && test -f web/modules/contrib/openid_connect/openid_connect.info.yml \
- && echo "H5P, H5P-Editor und OIDC-Anmeldung liegen im Abbild"
+ && ! grep -q resetHubOrganizationData vendor/h5p/h5p-core/h5p.classes.php \
+ && echo "H5P, H5P-Editor und OIDC-Anmeldung liegen im Abbild (h5p-core 1.27.0)"
 
 # ---------------------------------------------------------------------------
 FROM drupal:11.4.8-apache
