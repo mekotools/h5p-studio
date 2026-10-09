@@ -52,3 +52,32 @@
       am lebenden Dienst gegengeprüft: 25 Zeilen mit Beschreibung auf Seite 1
       (30 gesamt), Beitragsseite mit Beschreibung und Übung, Überlauf 0 px bei 390 px
 - [x] 5.3 README um Beschreibung, Tafel und Brotkrümel ergänzt
+
+## 6. Navigationsbereich (Nachtrag, ebenfalls 09.10.2026)
+
+Gemeldet: „Der gesamte Navigationsbereich sieht auf mobile immer noch
+unterirdisch aus." Nachgemessen — betroffen war auch der Schreibtisch.
+
+- [x] 6.1 Ursache gefunden: Die Regeln zielten auf `ul.menu`, der Menüblock
+      liefert ein `<ul>` **ohne Klasse** — sie griffen nie. Das Hauptmenü stand
+      als senkrechte Aufzählungsliste mit weißen Punkten und großem Einzug,
+      am Telefon 144 px hoch statt 44 px.
+- [x] 6.2 Selektor ohne Klassenbindung; der Drupal-Kasten um den Block darf
+      schrumpfen (`.mt-navi .mt-huelle > *`)
+- [x] 6.3 Kopfleiste mobil auf einer Zeile: „Zurück zu MekoTools" wird zu
+      „← MekoTools" (`.mt-lang` ausgeblendet; Marke 92 px + Rückweg 101 px +
+      „Anmelden" 93 px passen bei 390 px)
+- [x] 6.4 Leiste mobil eine Reihe: Abstände und Schriftgrad so gewählt, dass
+      alle drei Einträge ganz sichtbar sind (vorher 393 px, dritter angeschnitten;
+      jetzt 364 px von 364 px). Seitliches Rollen bleibt als Netz stehen.
+- [x] 6.5 Gegenmessung: Kopf 46 px + Leiste 44 px = **90 px** (vorher 216 px),
+      Aufzählungszeichen `none`, Überlauf 0 px, alle Einträge vollständig
+- [x] 6.6 Ausgeliefert als
+      `sha256:66ab885a1be26ad85fd69f32658669fd899561339a1d6021fa32bb9485c3ed81`
+      (Lauf 28, Commit `e9bb3c8`)
+
+## 7. Nebenbefund
+
+- [x] 7.1 Kein Inhaltsfehler: Der Titel „Urheberrechte" gehört so — das Paket
+      heißt tatsächlich so. Die frühere Vermutung (falsch gesetzter Titel) war
+      falsch; geprüft am Paket `hub-1291395936003439235.h5p`.

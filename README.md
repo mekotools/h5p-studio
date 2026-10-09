@@ -48,6 +48,12 @@ trägt das Studio die Gestalt von **mekotools.de** (dort läuft MkDocs Material)
   hieße auf der Startseite bloß „1. Startseite" — auf einer Beitragsseite fehlte
   der Seitenname. Zurück in den Katalog führt der Verweis auf jeder
   Beitragsseite.
+- **Navigationsleiste:** Das Hauptmenü liegt in einer eigenen, dunkleren Leiste
+  unter dem Kopf und ist eine **waagerechte Reihe** (Desktop und Telefon). Auf
+  dem Telefon wird der Rückweg zu „← MekoTools" gekürzt, damit Marke, Rückweg
+  und Anmeldung in eine Zeile passen; Kopf und Leiste sind zusammen 90 px hoch
+  statt 216 px. Achtung beim Ändern: Der Menüblock liefert ein `<ul>` **ohne
+  Klasse** — Regeln also nicht an `ul.menu` binden.
 
 Die ganze Umgebung trägt dieselbe Gestalt: **Pocket ID** (Name, Hausfarbe,
 Zeichen, Favicon, Mailbild, Kunden) und **Tinyauth** (Titel, Hintergrund) werden
