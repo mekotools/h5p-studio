@@ -185,6 +185,13 @@ else
   melden "Einrichtung vorhanden — Aktualisierungen laufen"
   drush updatedb -y || warnen "Datenbank-Aktualisierung schlug fehl"
   drush cache:rebuild -y || warnen "Zwischenspeicher liess sich nicht leeren"
+  # Die Anmeldung wird bei JEDEM Start nachgezogen, nicht nur bei der
+  # Ersteinrichtung: nur so wirken geänderte Werte in der .env, ohne dass von
+  # Hand eingegriffen werden muss. Der Aufruf ist wiederholbar (anlegen oder
+  # laden), und er ist der einzige Ort, an dem Anmeldekunde und
+  # Rollenzuordnung gesetzt werden.
+  anmeldung_einrichten
+  drush cache:rebuild -y >/dev/null 2>&1 || true
 fi
 
 # --- 4. Hausarbeiten stündlich anstossen (im Prozess) -----------------------
