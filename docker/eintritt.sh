@@ -179,6 +179,12 @@ anmeldung_einrichten() {
       ->set("always_save_userinfo", TRUE)
       ->set("autostart_login", FALSE)
       ->set("connect_existing_users", FALSE)
+      // Ohne diesen Schalter legt Drupal keine Konten an: die Grundeinstellung
+      // laesst nur Verwalter neue Konten anlegen, und der geladene Mensch steht
+      // dann vor "Nur Administratoren koennen neue Konten registrieren." Wer
+      // hereinkommt, entscheidet stattdessen der Anmeldedienst ueber die
+      // Stufengruppen am Kunden.
+      ->set("override_registration_settings", TRUE)
       ->set("userinfo_mappings", ["mail" => "email", "name" => "preferred_username"])
       ->set("role_mappings", [
         "angemeldet" => [$stufe1, "Angemeldet (unbestätigt)"],
