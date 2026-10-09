@@ -260,7 +260,13 @@ code, kbd, samp {
   text-decoration: none;
 }
 
-/* --- Navigation (Hauptmenü als Block) ------------------------------------- */
+/* --- Navigation (Hauptmenü als Block) -------------------------------------
+ * Der Menüblock liefert ein <ul> OHNE Klasse. Eine frühere Fassung zielte auf
+ * `ul.menu` und griff deshalb nie: Das Menü stand senkrecht mit weißen
+ * Aufzählungspunkten und großem Einzug im tiefen Türkis — am 09.10.2026 als
+ * „unterirdisch" gemeldet, erst recht auf dem Telefon. Deshalb hier ohne
+ * Bindung an eine Klasse.
+ */
 
 .mt-navi {
   background: var(--mt-haus-dunkel);
@@ -274,7 +280,14 @@ code, kbd, samp {
   align-items: stretch;
 }
 
-.mt-navi ul.menu {
+/* Drupal legt um den Menüblock einen eigenen Kasten. Er muss schrumpfen
+ * dürfen, sonst schiebt das Menü die Leiste über den Rand. */
+.mt-navi .mt-huelle > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mt-navi ul {
   display: flex;
   flex-wrap: wrap;
   margin: 0;
@@ -862,17 +875,58 @@ hr {
     font-size: 0.8rem;
   }
 
-  /* Kopfleiste: umbrechen statt überlaufen. */
+  /* Kopfleiste: eine Zeile, kein Umbruch. Gemessen bei 390 px passten Marke
+   * (92 px), Rückweg (157 px) und „Anmelden" (93 px) nicht nebeneinander —
+   * deshalb wird der Rückweg hier zum kurzen „← MekoTools" (das Wort „Zurück
+   * zu" verschwindet über .mt-lang, die Bedeutung trägt der Pfeil). */
   .mt-kopf-inhalt {
-    flex-wrap: wrap;
-    gap: 0.35rem 0.8rem;
+    align-items: center;
+    gap: 0.45rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .mt-lang {
+    display: none;
+  }
+
+  .mt-haus {
+    font-size: 0.64rem;
+  }
+
+  .mt-werkzeug {
+    font-size: 0.98rem;
   }
 
   .mt-rueckweg {
-    font-size: 0.86rem;
+    padding: 0.28rem 0.5rem;
+    font-size: 0.82rem;
   }
 
-  .mt-navi {
-    min-width: 0;
+  .mt-knopf {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  /* Navigationsleiste: eine Zeile, kein Stapel. Gemessen bei 390 px brauchten
+   * die drei Einträge 393 px — 29 px zu viel, der dritte wurde angeschnitten.
+   * Etwas engere Abstände und eine Spur kleinerer Schrift bringen sie auf rund
+   * 350 px; die Höhe bleibt bei 45 px Tippfläche. Das seitliche Rollen bleibt
+   * als Netz für längere Beschriftungen stehen. */
+  .mt-navi ul {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .mt-navi ul::-webkit-scrollbar {
+    height: 0;
+  }
+
+  .mt-navi a {
+    white-space: nowrap;
+    padding: 0.62rem 0.5rem;
+    font-size: 0.86rem;
   }
 }

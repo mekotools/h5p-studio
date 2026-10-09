@@ -47,5 +47,8 @@
 ## 5. Hausordnung
 
 - [x] 5.1 Dieser Change (nachgezogen — der Eingriff erfolgte vor der Niederschrift)
-- [ ] 5.2 Fertigungslauf grün, Auslieferung, Digest notieren
+- [x] 5.2 Fertigungslauf 27 (`1c880d2`) grün; ausgeliefert als
+      `sha256:d4e2a64aacf08f6f3d4c8d6f3c7a624a16f1304f1806cfbb7de5dcdeff6b4d5e`;
+      am lebenden Dienst gegengeprüft: 25 Zeilen mit Beschreibung auf Seite 1
+      (30 gesamt), Beitragsseite mit Beschreibung und Übung, Überlauf 0 px bei 390 px
 - [x] 5.3 README um Beschreibung, Tafel und Brotkrümel ergänzt
