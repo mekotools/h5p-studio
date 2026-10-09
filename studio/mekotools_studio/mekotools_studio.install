@@ -1,0 +1,231 @@
+<?php
+
+/**
+ * @file
+ * Einrichtung des Studios: Inhaltsart, Felder, Rollen, Datenschutz-Voreinstellung.
+ *
+ * Die gesamte Einrichtung steht hier als Code — nicht als Handarbeit in einer
+ * Datenbank. So lässt sich die Instanz jederzeit nachbauen.
+ */
+
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\node\Entity\NodeType;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\user\Entity\Role;
+
+/**
+ * Fächer der Startfassung. Erweiterbar: neue Fächer sind Begriffe in der
+ * Sammlung „faecher" und lassen sich im Studio ergänzen.
+ */
+function mekotools_studio_faecher_start() {
+  return [
+    'Deutsch', 'Mathematik', 'Englisch', 'Sachunterricht', 'Biologie', 'Physik',
+    'Chemie', 'Geschichte', 'Politik', 'Geografie', 'Musik', 'Kunst', 'Ethik',
+    'Religion', 'Sport', 'Informatik', 'Medienbildung', 'Übergreifend',
+  ];
+}
+
+/**
+ * Legt Sammlungen, Inhaltsart und Felder an.
+ */
+function mekotools_studio_install() {
+  // 1. Sammlungen (Schlagworte sind frei, Fächer haben einen Startbestand).
+  if (!Vocabulary::load('faecher')) {
+    Vocabulary::create([
+      'vid' => 'faecher',
+      'name' => 'Fächer',
+      'description' => 'Schulfächer der H5P-Inhalte.',
+    ])->save();
+  }
+  if (!Vocabulary::load('schlagworte')) {
+    Vocabulary::create([
+      'vid' => 'schlagworte',
+      'name' => 'Schlagworte',
+      'description' => 'Frei vergebene Stichworte; jede Lehrkraft darf neue anlegen.',
+    ])->save();
+  }
+  foreach (mekotools_studio_faecher_start() as $name) {
+    $vorhanden = \Drupal::entityTypeManager()->getStorage('taxonomy_term')
+      ->loadByProperties(['vid' => 'faecher', 'name' => $name]);
+    if (!$vorhanden) {
+      Term::create(['vid' => 'faecher', 'name' => $name])->save();
+    }
+  }
+
+  // 2. Inhaltsart.
+  if (!NodeType::load('h5p_inhalt')) {
+    NodeType::create([
+      'type' => 'h5p_inhalt',
+      'name' => 'H5P-Inhalt',
+      'description' => 'Interaktive Übung (H5P), im Studio erstellt.',
+      'title_label' => 'Titel',
+      'new_revision' => TRUE,
+      'display_submitted' => TRUE,
+    ])->save();
+  }
+
+  // 3. Feld „Interaktive Übung (H5P)" — die Verknüpfung zum H5P-Bestand.
+  if (!FieldStorageConfig::loadByName('node', 'field_h5p')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_h5p',
+      'entity_type' => 'node',
+      'type' => 'h5p',
+      'cardinality' => 1,
+    ])->save();
+  }
+  if (!FieldConfig::loadByName('node', 'h5p_inhalt', 'field_h5p')) {
+    FieldConfig::create([
+      'field_name' => 'field_h5p',
+      'entity_type' => 'node',
+      'bundle' => 'h5p_inhalt',
+      'label' => 'Interaktive Übung (H5P)',
+      'description' => 'Inhaltstyp wählen und ausfüllen. Speichern legt die Übung dauerhaft ab.',
+      'required' => TRUE,
+    ])->save();
+  }
+
+  // 4. Fach (ein Begriff) und Schlagworte (mehrere, frei erweiterbar).
+  if (!FieldStorageConfig::loadByName('node', 'field_fach')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_fach',
+      'entity_type' => 'node',
+      'type' => 'entity_reference',
+      'cardinality' => 1,
+      'settings' => ['target_type' => 'taxonomy_term'],
+    ])->save();
+  }
+  if (!FieldConfig::loadByName('node', 'h5p_inhalt', 'field_fach')) {
+    FieldConfig::create([
+      'field_name' => 'field_fach',
+      'entity_type' => 'node',
+      'bundle' => 'h5p_inhalt',
+      'label' => 'Fach',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => ['faecher' => 'faecher'],
+          'auto_create' => FALSE,
+        ],
+      ],
+    ])->save();
+  }
+  if (!FieldStorageConfig::loadByName('node', 'field_schlagworte')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_schlagworte',
+      'entity_type' => 'node',
+      'type' => 'entity_reference',
+      'cardinality' => -1,
+      'settings' => ['target_type' => 'taxonomy_term'],
+    ])->save();
+  }
+  if (!FieldConfig::loadByName('node', 'h5p_inhalt', 'field_schlagworte')) {
+    FieldConfig::create([
+      'field_name' => 'field_schlagworte',
+      'entity_type' => 'node',
+      'bundle' => 'h5p_inhalt',
+      'label' => 'Schlagworte',
+      'description' => 'Ein neues Wort wird beim Speichern angelegt.',
+      'required' => FALSE,
+      'settings' => [
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => ['schlagworte' => 'schlagworte'],
+          'auto_create' => TRUE,
+          'auto_create_bundle' => 'schlagworte',
+        ],
+      ],
+    ])->save();
+  }
+
+  // 5. Kurzbeschreibung (nutzt das Feld, das die Grundfassung mitbringt).
+  if (FieldStorageConfig::loadByName('node', 'body')
+      && !FieldConfig::loadByName('node', 'h5p_inhalt', 'body')) {
+    FieldConfig::create([
+      'field_name' => 'body',
+      'entity_type' => 'node',
+      'bundle' => 'h5p_inhalt',
+      'label' => 'Kurzbeschreibung',
+      'required' => FALSE,
+    ])->save();
+  }
+
+  // 6. Formular und Anzeige.
+  $form = EntityFormDisplay::load('node.h5p_inhalt.default') ?: EntityFormDisplay::create([
+    'id' => 'node.h5p_inhalt.default',
+    'targetEntityType' => 'node',
+    'bundle' => 'h5p_inhalt',
+    'mode' => 'default',
+    'status' => TRUE,
+  ]);
+  $form->setComponent('field_h5p', ['type' => 'h5p_editor', 'weight' => 1, 'settings' => []])
+    ->setComponent('field_fach', ['type' => 'options_select', 'weight' => 2, 'settings' => []])
+    ->setComponent('field_schlagworte', [
+      'type' => 'entity_reference_autocomplete_tags',
+      'weight' => 3,
+      'settings' => [
+        'match_operator' => 'CONTAINS',
+        'match_limit' => 10,
+        'size' => 60,
+        'placeholder' => 'Schlagworte, durch Komma getrennt',
+      ],
+    ]);
+  if (FieldConfig::loadByName('node', 'h5p_inhalt', 'body')) {
+    $form->setComponent('body', [
+      'type' => 'text_textarea',
+      'weight' => 4,
+      'settings' => ['rows' => 3, 'placeholder' => ''],
+    ]);
+  }
+  $form->save();
+
+  $view = EntityViewDisplay::load('node.h5p_inhalt.default') ?: EntityViewDisplay::create([
+    'id' => 'node.h5p_inhalt.default',
+    'targetEntityType' => 'node',
+    'bundle' => 'h5p_inhalt',
+    'mode' => 'default',
+    'status' => TRUE,
+  ]);
+  $view->setComponent('field_h5p', ['type' => 'h5p_default', 'label' => 'hidden', 'weight' => 0])
+    ->setComponent('body', ['type' => 'text_default', 'label' => 'hidden', 'weight' => 1])
+    ->setComponent('field_fach', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 2])
+    ->setComponent('field_schlagworte', ['type' => 'entity_reference_label', 'label' => 'inline', 'weight' => 3]);
+  $view->save();
+
+  // 7. Rolle „Lehrkraft": anlegen und Inhalte verwalten dürfen.
+  $rolle = Role::load('lehrkraft') ?: Role::create([
+    'id' => 'lehrkraft',
+    'label' => 'Lehrkraft',
+  ]);
+  $rechte = [
+    'access content',
+    'view own unpublished content',
+    'create h5p_inhalt content',
+    'edit any h5p_inhalt content',
+    'delete any h5p_inhalt content',
+    'access h5p editor',
+    'create terms in faecher',
+    'create terms in schlagworte',
+    'use text format basic_html',
+    'use text format restricted_html',
+    'access site reports',
+  ];
+  foreach ($rechte as $recht) {
+    $rolle->grantPermission($recht);
+  }
+  $rolle->save();
+
+  // 8. Datenschutz: die Voreinstellung des H5P-Bausteins sendet Nutzungsdaten
+  // an h5p.org. Das schalten wir ab. Der Abruf des Inhaltstypen-Verzeichnisses
+  // (Inhaltstypen-Auswahl) bleibt bestehen; ohne ihn gäbe es keine Auswahl.
+  \Drupal::configFactory()->getEditable('h5p.settings')
+    ->set('h5p_send_usage_statistics', 0)
+    ->set('h5p_hub_is_enabled', 1)
+    ->set('h5p_export', 1)
+    ->set('h5p_embed', 1)
+    ->save();
+}

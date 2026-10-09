@@ -1,0 +1,14 @@
+mekotools_studio.bibliothek:
+  path: '/bibliothek'
+  defaults:
+    _controller: '\Drupal\mekotools_studio\Controller\BibliothekController::seite'
+    _title: 'Bibliothek'
+  requirements:
+    _permission: 'access content'
+
+mekotools_studio.kurzweg:
+  path: '/studio'
+  defaults:
+    _controller: '\Drupal\mekotools_studio\Controller\KurzwegController::weiter'
+  requirements:
+    _permission: 'access content'

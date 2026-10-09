@@ -1,0 +1,57 @@
+name: Abbild bauen und nach GHCR schieben
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Das Arbeitsabbild ist absichtlich schlank (docker:27-cli, Alpine): docker, buildx
+# und git sind drin, bash und node nicht. Deshalb:
+#  * ausdrücklich sh als Schale
+#  * Quelltext per git holen statt mit actions/checkout (das braucht node)
+defaults:
+  run:
+    shell: sh
+
+env:
+  ABBILD: ghcr.io/mekotools/h5p-studio
+
+jobs:
+  abbild:
+    runs-on: docker
+    steps:
+      - name: Quelle holen
+        run: |
+          git config --global --add safe.directory '*'
+          git clone --quiet "${{ github.server_url }}/${{ github.repository }}.git" . || \
+            git clone --quiet "${{ github.repository }}.git" .
+          git checkout --quiet "${{ github.sha }}"
+          git log --oneline -1
+
+      - name: An GHCR anmelden
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | \
+            docker login ghcr.io -u "${{ secrets.GHCR_BENUTZER }}" --password-stdin
+
+      - name: Bauen (Fassung = Übergabe-Kennung)
+        run: |
+          docker build \
+            -t "$ABBILD:${{ github.sha }}" \
+            -t "$ABBILD:latest" \
+            -f Dockerfile .
+
+      - name: Schieben (nur die beiden eigenen Marken)
+        run: |
+          docker push "$ABBILD:${{ github.sha }}"
+          docker push "$ABBILD:latest"
+
+      - name: Nachweis
+        run: |
+          docker image inspect "$ABBILD:latest" --format 'Größe {{.Size}} Bytes'
+          # Der Verdauungswert des Index ist der Wert, der im Stapel auf flip
+          # festgenagelt wird — hier im Protokoll, damit niemand ihn suchen muss.
+          docker image inspect "$ABBILD:latest" --format '{{index .RepoDigests 0}}'
+          # Das Schloss steckt im Abbild; es wird nach dem ersten grünen Lauf
+          # in das Repo gezogen (siehe docs/betrieb.md).
+          docker run --rm --entrypoint cat "$ABBILD:latest" /opt/drupal/composer.lock \
+            | sha256sum

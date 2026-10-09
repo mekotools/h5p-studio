@@ -1,0 +1,124 @@
+<?php
+
+/**
+ * @file
+ * MekoTools Studio: Anmeldung, Adressen, Teilen-Hinweis.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
+
+/**
+ * Hilfe für das Modul.
+ */
+function mekotools_studio_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.mekotools_studio':
+      return '<p>Dieser Aufsatz bringt die Inhaltsart „H5P-Inhalt", die Bibliothek und die deutsche Oberfläche. Die Inhalte selbst verwaltet der H5P-Baustein.</p>';
+  }
+}
+
+/**
+ * Wer sich anmeldet, ist Lehrkraft.
+ *
+ * Absichtlich hier und nicht in der Anmeldung am Anmeldedienst: die Regel gilt
+ * für jeden Anmeldeweg (Pocket ID und Notfallkonto) und steht damit an genau
+ * einer Stelle.
+ */
+function mekotools_studio_user_login(AccountInterface $account) {
+  if ($account->id() == 1 || $account->hasPermission('administer site configuration')) {
+    return;
+  }
+  if (!$account->hasRole('lehrkraft')) {
+    $account->addRole('lehrkraft');
+    $account->save();
+    \Drupal::logger('mekotools_studio')->notice('Rolle „Lehrkraft" an Konto @name vergeben.', ['@name' => $account->getAccountName()]);
+  }
+}
+
+/**
+ * Adresse je Inhalt: /inhalt/<Kennung>. Damit lässt sich ein Inhalt teilen,
+ * ohne über die Verwaltungsoberfläche zu gehen.
+ */
+function mekotools_studio_node_insert(EntityInterface $node) {
+  mekotools_studio_adresse_setzen($node);
+}
+
+/**
+ * @see mekotools_studio_node_insert()
+ */
+function mekotools_studio_node_update(EntityInterface $node) {
+  mekotools_studio_adresse_setzen($node);
+}
+
+/**
+ * Legt oder berichtigt die Adresse eines Inhalts.
+ */
+function mekotools_studio_adresse_setzen(EntityInterface $node) {
+  if ($node->bundle() !== 'h5p_inhalt') {
+    return;
+  }
+  $ziel = '/node/' . $node->id();
+  $alias = '/inhalt/' . $node->id();
+  $speicher = \Drupal::entityTypeManager()->getStorage('path_alias');
+  $vorhanden = $speicher->loadByProperties(['path' => $ziel]);
+  if ($vorhanden) {
+    /** @var \Drupal\path_alias\Entity\PathAlias $eintrag */
+    $eintrag = reset($vorhanden);
+    if ($eintrag->getAlias() !== $alias) {
+      $eintrag->setAlias($alias);
+      $eintrag->save();
+    }
+    return;
+  }
+  $speicher->create([
+    'path' => $ziel,
+    'alias' => $alias,
+    'langcode' => $node->language()->getId(),
+  ])->save();
+}
+
+/**
+ * Zeigt auf der Inhaltsseite die Adresse zum Weitergeben — kopierfertig.
+ */
+function mekotools_studio_node_view(array &$build, EntityInterface $node, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+  if ($node->bundle() !== 'h5p_inhalt' || $view_mode !== 'full') {
+    return;
+  }
+  $adresse = \Drupal::request()->getSchemeAndHttpHost() . '/inhalt/' . $node->id();
+  $build['teilen'] = [
+    '#type' => 'container',
+    '#attributes' => ['class' => ['h5p-studio-teilen']],
+    '#weight' => 90,
+    'hinweis' => ['#markup' => '<h3>Adresse zum Weitergeben</h3>'],
+    'eingabe' => [
+      '#type' => 'html_tag',
+      '#tag' => 'input',
+      '#attributes' => [
+        'type' => 'text',
+        'value' => $adresse,
+        'readonly' => 'readonly',
+        'id' => 'h5p-studio-adresse',
+        'style' => 'width:100%;max-width:44em;padding:.4em;font-family:monospace',
+        'onclick' => 'this.select()',
+      ],
+    ],
+    'hinweis2' => ['#markup' => '<p>Diese Adresse zeigt nur den Inhalt — Lernende brauchen dafür kein Konto.</p>'],
+  ];
+}
+
+/**
+ * Beschriftungen, die wir selbst vergeben (deutsch, ohne Umweg über Übersetzungen).
+ */
+function mekotools_studio_form_node_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  if (($form['#entity_type'] ?? '') !== 'node' || ($form['#bundle'] ?? '') !== 'h5p_inhalt') {
+    return;
+  }
+  $form['title']['widget'][0]['value']['#description'] = 'Der Titel erscheint in der Bibliothek und in der Überschrift des Inhalts.';
+  $form['actions']['submit']['#value'] = 'Speichern';
+  if (isset($form['actions']['preview'])) {
+    $form['actions']['preview']['#value'] = 'Vorschau';
+  }
+}

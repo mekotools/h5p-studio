@@ -1,0 +1,14 @@
+name: 'MekoTools Studio'
+type: module
+description: 'Bringt die Inhaltsart „H5P-Inhalt", das H5P-Feld, die Bibliotheksseite und die deutschen Beschriftungen mit.'
+package: MekoTools
+core_version_requirement: ^10.2 || ^11
+dependencies:
+  - drupal:node
+  - drupal:field
+  - drupal:taxonomy
+  - drupal:text
+  - drupal:user
+  - drupal:language
+  - h5p:h5p
+  - h5peditor:h5peditor
