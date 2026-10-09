@@ -46,6 +46,27 @@ Antragsverwaltung gibt es höhere Stufen — das regelt die Verwaltung.
    Die Adresse aus der Adresszeile des Browsers ist die Adresse, die du teilst — als
    Link, im Arbeitsblatt oder über eine beliebige Adresse-im-Bild-Erzeugerin.
 
+## Was schon drin ist
+
+Die Bibliothek ist nicht leer: **30 fertige Beispiele** aus dem Themenkomplex
+**Medienbildung** liegen bereit und lassen sich sofort im Unterricht zeigen —
+Fake News, Algorithmen, Chatverläufe, Urheberrecht, Bildersuche, soziale
+Netzwerke, Werbung und Marketing, dazu Einstiegs- und Ausgangstests.
+
+- Alle Beispiele stammen aus öffentlichen Sammlungen (**ZUM-Apps** und dem
+  **H5P OER Hub**) und stehen unter freien Lizenzen (CC0, CC BY, CC BY-SA oder
+  gemeinfrei), alle auf Deutsch.
+- Die Adressen funktionieren **ohne Anmeldung** — die Übung lässt sich also
+  direkt an die Klasse geben.
+- **Wer ein Beispiel weitergibt, nennt Urheber und Lizenz.** Für jedes Beispiel
+  stehen beide Angaben samt Prüfsumme in der Liste
+  [docs/herkunft.md](herkunft.md) (dieselben Angaben maschinenlesbar in
+  [docs/herkunft.csv](herkunft.csv)).
+- Ein Beispiel darf man auch **verändern** — bei CC BY und CC BY-SA ist das
+  erlaubt, solange Urheber und Lizenz genannt und die Änderungen kenntlich
+  gemacht werden. Beispiele mit „keine Bearbeitung" (ND) haben wir gar nicht
+  erst aufgenommen.
+
 ## Veröffentlichen und teilen
 
 - **Unveröffentlicht** (Häkchen „Veröffentlicht" im Formular entfernen) heißt: nur du
