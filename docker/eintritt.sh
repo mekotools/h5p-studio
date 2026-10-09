@@ -113,37 +113,48 @@ anmeldung_einrichten() {
   # Am KUNDEN stehen nur die Angaben, die den Anbieter betreffen. Die
   # Verhaltensschalter (Anzeige im Anmeldeformular, Rollenzuordnung, Merkmale)
   # sitzen in den MODULEINSTELLUNGEN — am Kunden abgelegt bleiben sie wirkungslos.
-  drush php:eval '
-    $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
-    $client = $speicher->load("pocketid") ?: $speicher->create(["id" => "pocketid"]);
-    $client->set("label", "MekoTools-Anmeldung");
-    $client->set("plugin", "generic");
-    $client->set("status", TRUE);
-    $client->set("settings", [
+  GRUPPE="${STUDIO_OIDC_GRUPPE:-lehrkraefte}"
+
+  # Kundeneinstellungen UND Moduleinstellungen in einem Aufruf. Zwei Fallen:
+  #  * Die Entität muss ihre Sorte ("plugin") schon beim Anlegen kennen — sonst
+  #    baut sie ihre Sortensammlung mit leerem Wert und bricht mit einem
+  #    TypeError ab (genau das passierte am 09.10.2026).
+  #  * Die Verhaltensschalter sitzen in den MODULEINSTELLUNGEN; am Kunden
+  #    abgelegt bleiben sie wirkungslos. Sie werden typisiert gesetzt, nicht als
+  #    Zeichenkette — sonst steht später Text statt einer Zuordnung darin.
+  STUDIO_OIDC_GRUPPE="$GRUPPE" drush php:eval '
+    $werte = [
       "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
       "client_secret" => getenv("STUDIO_OIDC_GEHEIM"),
       "issuer_url" => getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de",
       "scopes" => ["openid", "profile", "email", "groups"],
-    ]);
-    $client->save();
-    echo "Kunde eingerichtet: " . $client->id() . "\n";
+    ];
+    $gruppe = getenv("STUDIO_OIDC_GRUPPE") ?: "lehrkraefte";
+    $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
+    $kunde = $speicher->load("pocketid");
+    if ($kunde) {
+      $kunde->set("settings", $werte);
+    }
+    else {
+      $kunde = $speicher->create([
+        "id" => "pocketid",
+        "label" => "MekoTools-Anmeldung",
+        "plugin" => "generic",
+        "settings" => $werte,
+      ]);
+    }
+    $kunde->save();
+    \Drupal::configFactory()->getEditable("openid_connect.settings")
+      ->set("user_login_display", "above")
+      ->set("always_save_userinfo", TRUE)
+      ->set("autostart_login", FALSE)
+      ->set("connect_existing_users", FALSE)
+      ->set("userinfo_mappings", ["mail" => "email", "name" => "preferred_username"])
+      ->set("role_mappings", ["lehrkraft" => [$gruppe, "Lehrkräfte"]])
+      ->set("force_reset_role_mappings", TRUE)
+      ->save();
+    echo "Kunde " . $kunde->id() . " bereit\n";
   ' || warnen "Anmeldung konnte nicht eingerichtet werden"
-
-  GRUPPE="${STUDIO_OIDC_GRUPPE:-lehrkraefte}"
-  drush config:set openid_connect.settings user_login_display above -y >/dev/null 2>&1
-  drush config:set openid_connect.settings always_save_userinfo true -y >/dev/null 2>&1
-  drush config:set openid_connect.settings autostart_login false -y >/dev/null 2>&1
-  # KEIN Verknüpfen mit bestehenden Konten: sonst könnte, wer dieselbe Adresse
-  # wie das Notfallkonto benutzt, an dessen Rechte kommen. Lehrkräfte bekommen
-  # ein eigenes Konto.
-  drush config:set openid_connect.settings connect_existing_users false -y >/dev/null 2>&1
-  drush config:set openid_connect.settings userinfo_mappings \
-    '{"mail":"email","name":"preferred_username"}' --input-format=json -y >/dev/null 2>&1
-  # Wer im Anmeldedienst in der Gruppe ist, bekommt hier die Rolle Lehrkraft.
-  # Beide Schreibweisen, weil das Merkmal den Namen oder die Anzeige tragen kann.
-  drush config:set openid_connect.settings role_mappings \
-    "{\"lehrkraft\":[\"$GRUPPE\",\"Lehrkräfte\"]}" --input-format=json -y >/dev/null 2>&1
-  drush config:set openid_connect.settings force_reset_role_mappings true -y >/dev/null 2>&1
   melden "Anmeldung eingerichtet, Rolle Lehrkraft an die Gruppe $GRUPPE gebunden"
 }
 
