@@ -1,0 +1,548 @@
+/* Die Hülle des Studios — Gestalt von mekotools.de (MkDocs Material).
+ *
+ * Die tragenden Werte sind aus der Palettendatei von mekotools.de abgelesen,
+ * nicht geschätzt: Hausfarbe #009485, heller Ton #26a699, dunkler Ton #007a6c,
+ * Inhaltsbreite 61rem, dunkle Darstellung hsl(200,15%,14%).
+ *
+ * Zwei bewusste Abweichungen von der Vorlage:
+ *   - Keine fremde Schriftart. Material lädt Roboto von einem fremden Server;
+ *     hier gilt die Systemschrift. Optisch nah, datenschutzfachlich sauber.
+ *   - Verweise in einem dunkleren Türkis (#007a6c statt #009485), damit sie auf
+ *     weißem Grund gut lesbar sind (Kontrastverhältnis 4,6:1 statt 3,1:1).
+ *     Die Kopfleiste behält die Hausfarbe — dort steht weiße Schrift.
+ *
+ * Hell und dunkel richten sich nach der Systemeinstellung; `color-scheme` sorgt
+ * dafür, dass auch die eingebauten Bedienelemente (Auswahllisten, Scrollbalken)
+ * mitziehen.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --mt-haus: #009485;
+  --mt-haus-hell: #26a699;
+  --mt-haus-dunkel: #007a6c;
+  --mt-haus-tief: #00665a;
+  --mt-breite: 61rem;
+  --mt-radius: 4px;
+
+  --mt-grund: #ffffff;
+  --mt-flaeche: #f5f7f7;
+  --mt-text: rgba(0, 0, 0, 0.87);
+  --mt-text-leise: rgba(0, 0, 0, 0.54);
+  --mt-linie: rgba(0, 0, 0, 0.12);
+  --mt-verweis: var(--mt-haus-dunkel);
+  --mt-fuss-grund: hsla(200, 15%, 10%, 0.87);
+  --mt-fuss-text: hsla(200, 15%, 90%, 0.82);
+
+  --mt-gut: #2e7d32;
+  --mt-warnung: #b26a00;
+  --mt-fehler: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mt-grund: hsl(200, 15%, 14%);
+    --mt-flaeche: hsla(200, 15%, 18%, 1);
+    --mt-text: hsla(200, 15%, 90%, 0.82);
+    --mt-text-leise: hsla(200, 15%, 90%, 0.56);
+    --mt-linie: hsla(200, 15%, 90%, 0.14);
+    --mt-verweis: var(--mt-haus-hell);
+    --mt-gut: #7bd88f;
+    --mt-warnung: #ffd479;
+    --mt-fehler: #ff8a80;
+  }
+}
+
+/* --- Grundlage ------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mt-grund);
+  color: var(--mt-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.mt-huelle {
+  width: 100%;
+  max-width: var(--mt-breite);
+  margin: 0 auto;
+  padding: 0 0.8rem;
+}
+
+a {
+  color: var(--mt-verweis);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--mt-haus);
+  outline-offset: 1px;
+}
+
+h1, h2, h3, h4 {
+  line-height: 1.25;
+  margin: 1.6rem 0 0.6rem;
+  font-weight: 400;
+}
+
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.3rem; }
+h3 { font-size: 1.1rem; }
+
+p, ul, ol { margin: 0 0 1rem; }
+
+code, kbd, samp {
+  font-family: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.9em;
+  background: var(--mt-flaeche);
+  padding: 0.1rem 0.3rem;
+  border-radius: var(--mt-radius);
+}
+
+/* --- Sprungmarke ----------------------------------------------------------
+ * Der Kern bringt „Direkt zum Inhalt" selbst mit (aus html.html.twig). Sie
+ * liegt außerhalb unserer Hülle und wird nur beim Fokus sichtbar — hier nur so
+ * gestaltet, dass sie dann auch lesbar ist.
+ */
+.skip-link:focus {
+  position: fixed;
+  left: 0.8rem;
+  top: 0.5rem;
+  z-index: 100;
+  background: #ffffff;
+  color: var(--mt-haus-dunkel);
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--mt-radius);
+  text-decoration: none;
+}
+
+/* --- Kopfleiste ----------------------------------------------------------- */
+
+.mt-kopf {
+  background: var(--mt-haus);
+  color: #ffffff;
+}
+
+.mt-kopf-inhalt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.9rem;
+}
+
+.mt-zeichen {
+  display: inline-flex;
+  align-items: center;
+  color: #ffffff;
+  flex: none;
+}
+
+.mt-zeichen img {
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.mt-name {
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  line-height: 1.15;
+  text-decoration: none;
+}
+
+.mt-name:hover,
+.mt-name:focus {
+  text-decoration: none;
+}
+
+.mt-haus {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.mt-werkzeug {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.mt-rueckweg {
+  margin-left: auto;
+  color: #ffffff;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--mt-radius);
+  white-space: nowrap;
+}
+
+.mt-rueckweg:hover,
+.mt-rueckweg:focus {
+  background: rgba(255, 255, 255, 0.16);
+  text-decoration: none;
+}
+
+/* --- Navigation (Hauptmenü als Block) ------------------------------------- */
+
+.mt-navi {
+  background: var(--mt-haus-dunkel);
+  color: #ffffff;
+  box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.18);
+}
+
+.mt-navi .mt-huelle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.mt-navi ul.menu {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mt-navi li {
+  margin: 0;
+}
+
+.mt-navi a {
+  display: block;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  border-bottom: 0.15rem solid transparent;
+}
+
+.mt-navi a:hover,
+.mt-navi a:focus {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.mt-navi a.is-active {
+  color: #ffffff;
+  border-bottom-color: #ffffff;
+  font-weight: 600;
+}
+
+/* --- Körper --------------------------------------------------------------- */
+
+.mt-koerper {
+  padding-top: 1.2rem;
+  padding-bottom: 2.6rem;
+}
+
+.mt-hinweise:empty {
+  display: none;
+}
+
+/* --- Meldungen: sichtbar, nicht versteckt --------------------------------- */
+
+.messages {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.85rem;
+  border-left: 0.3rem solid var(--mt-text-leise);
+  border-radius: var(--mt-radius);
+  background: var(--mt-flaeche);
+}
+
+.messages--status,
+.messages--status-list {
+  border-left-color: var(--mt-haus);
+}
+
+.messages--warning {
+  border-left-color: var(--mt-warnung);
+}
+
+.messages--error {
+  border-left-color: var(--mt-fehler);
+  font-weight: 600;
+}
+
+/* --- Formulare ------------------------------------------------------------ */
+
+.form-item,
+.form-actions {
+  margin: 0 0 1rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  color: var(--mt-text);
+  background: var(--mt-grund);
+  border: 1px solid var(--mt-linie);
+  border-radius: var(--mt-radius);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  margin-right: 0.35rem;
+}
+
+select[multiple] {
+  min-height: 7rem;
+}
+
+.form-item--checkbox label,
+.form-item--radio label {
+  font-weight: 400;
+  display: inline;
+}
+
+.description,
+.form-item .description {
+  color: var(--mt-text-leise);
+  font-size: 0.85rem;
+}
+
+/* --- Schaltflächen -------------------------------------------------------- */
+
+.button,
+input[type="submit"],
+input[type="button"],
+button {
+  display: inline-block;
+  width: auto;
+  padding: 0.5rem 0.95rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--mt-haus);
+  border: 0;
+  border-radius: var(--mt-radius);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.button:hover,
+.button:focus,
+input[type="submit"]:hover,
+input[type="submit"]:focus,
+button:hover,
+button:focus {
+  background: var(--mt-haus-dunkel);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.button--zweit,
+input[type="button"] {
+  background: transparent;
+  color: var(--mt-verweis);
+  border: 1px solid var(--mt-linie);
+}
+
+.button--zweit:hover,
+.button--zweit:focus,
+input[type="button"]:hover {
+  background: var(--mt-flaeche);
+  color: var(--mt-verweis);
+}
+
+/* --- Tafel (Bibliothek) --------------------------------------------------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.2rem;
+  font-size: 0.95rem;
+}
+
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--mt-linie);
+}
+
+thead th {
+  border-bottom: 0.15rem solid var(--mt-linie);
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--mt-text-leise);
+}
+
+tbody tr:hover {
+  background: var(--mt-flaeche);
+}
+
+td .button,
+th .button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+/* Auf schmalen Geräten bleibt die Tafel lesbar: sie rollt seitwärts, statt
+ * Inhalte abzuschneiden oder die Seite zu sprengen. */
+@media (max-width: 44rem) {
+  .mt-inhalt table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* --- Blätterung ----------------------------------------------------------- */
+
+.pager,
+.pager__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pager__item a,
+.pager__item.is-active {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--mt-linie);
+  border-radius: var(--mt-radius);
+}
+
+.pager__item.is-active {
+  background: var(--mt-haus);
+  border-color: var(--mt-haus);
+  color: #ffffff;
+}
+
+/* --- Reiter (Verwaltungsseiten, Anmeldung) -------------------------------- */
+
+.tabs,
+ul.tabs {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--mt-linie);
+}
+
+.tabs li,
+ul.tabs li {
+  display: inline-block;
+  margin: 0 0.2rem -1px 0;
+}
+
+.tabs a,
+ul.tabs a {
+  display: block;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: var(--mt-radius) var(--mt-radius) 0 0;
+}
+
+.tabs a.is-active,
+ul.tabs a.is-active {
+  border-color: var(--mt-linie);
+  border-bottom-color: var(--mt-grund);
+  font-weight: 600;
+}
+
+/* --- Hilfe- und Textbereiche ---------------------------------------------- */
+
+.mt-inhalt img,
+.mt-inhalt video,
+.mt-inhalt iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+blockquote {
+  margin: 0 0 1rem;
+  padding: 0.2rem 0 0.2rem 0.9rem;
+  border-left: 0.25rem solid var(--mt-linie);
+  color: var(--mt-text-leise);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--mt-linie);
+  margin: 1.6rem 0;
+}
+
+/* --- Fußzeile ------------------------------------------------------------- */
+
+.mt-fuss {
+  background: var(--mt-fuss-grund);
+  color: var(--mt-fuss-text);
+  border-top: 0.2rem solid var(--mt-haus);
+  padding: 1.2rem 0 1.6rem;
+  font-size: 0.9rem;
+}
+
+.mt-fuss a {
+  color: #ffffff;
+}
+
+.mt-fuss-satz {
+  margin: 0 0 0.6rem;
+  color: #ffffff;
+}
+
+.mt-fuss-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  list-style: none;
+}
+
+.mt-fuss-klein {
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.85;
+}

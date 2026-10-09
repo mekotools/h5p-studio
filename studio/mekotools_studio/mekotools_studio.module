@@ -10,6 +10,28 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
+ * Entfernt den Startseiten-Verweis aus der Hauptnavigation.
+ *
+ * Drupals Standardprofil legt in der Hauptnavigation einen Verweis „Home"
+ * (deutsch „Startseite") auf die Startseite an. Im Studio IST die Startseite die
+ * Bibliothek — der Verweis führt also ein zweites Mal zum selben Ziel und stört
+ * die Ordnung: Bibliothek, Zugang, Werkzeugkatalog.
+ *
+ * Der Verweis wird nicht aus der Datenbank gelöscht (er gehört nicht uns),
+ * sondern beim Sammeln der Verweise übergangen. Das gilt auch für eine frisch
+ * aufgebaute Instanz, in der er wieder mitkäme.
+ */
+function mekotools_studio_menu_links_discovered_alter(array &$links) {
+  foreach ($links as $kennung => $verweis) {
+    $ziel = $verweis['route_name'] ?? ($verweis['url'] ?? '');
+    if (($verweis['menu_name'] ?? '') === 'main'
+      && in_array($ziel, ['<front>', 'internal:/', 'internal:/node'], TRUE)) {
+      unset($links[$kennung]);
+    }
+  }
+}
+
+/**
  * Hilfe für das Modul.
  */
 function mekotools_studio_help($route_name, RouteMatchInterface $route_match) {

@@ -1,0 +1,62 @@
+{#
+  Die Hülle des Studios.
+
+  Sie nimmt die Gestalt von mekotools.de auf (MkDocs Material, Hausfarbe #009485),
+  damit der Weg von der Hauptseite ins Studio kein Websitewechsel ist:
+  gleiche Kopfleiste, gleiche Breite, gleiche Fußzeile, hell und dunkel nach
+  Systemeinstellung. Der Name des Hauses steht über dem Namen des Werkzeugs, und
+  der Rückweg zur Hauptseite ist immer sichtbar — niemand ist hier „gefangen".
+
+  Die Bereiche `hinweise` (Meldungen), `kopf_navigation` (Hauptmenü) und
+  `content` (Seitentitel und Inhalt) werden als Blöcke gesetzt; Kopfleiste und
+  Fußzeile bringt die Vorlage mit.
+#}
+<div class="mt-seite">
+  <header class="mt-kopf" role="banner">
+    <div class="mt-huelle mt-kopf-inhalt">
+      <a class="mt-zeichen" href="{{ front_page }}" aria-label="Startseite des H5P-Studios">
+        <img src="{{ base_path ~ directory }}/logo.svg" alt="" width="32" height="32">
+      </a>
+      <a class="mt-name" href="{{ front_page }}">
+        <span class="mt-haus">MekoTools</span>
+        <span class="mt-werkzeug">H5P-Studio</span>
+      </a>
+      <a class="mt-rueckweg" href="https://mekotools.de/">Zurück zu MekoTools</a>
+    </div>
+  </header>
+
+  {% if page.kopf_navigation %}
+    <nav class="mt-navi" aria-label="Hauptnavigation">
+      <div class="mt-huelle">{{ page.kopf_navigation }}</div>
+    </nav>
+  {% endif %}
+
+  <div class="mt-huelle mt-koerper">
+    {% if page.hinweise %}
+      <div class="mt-hinweise">{{ page.hinweise }}</div>
+    {% endif %}
+
+    <main id="main-content" class="mt-inhalt" role="main">
+      {{ page.content }}
+    </main>
+  </div>
+
+  <footer class="mt-fuss" role="contentinfo">
+    <div class="mt-huelle mt-fuss-inhalt">
+      <p class="mt-fuss-satz">
+        <strong>MekoTools</strong> — medienpädagogische Werkzeuge für den Unterricht.
+      </p>
+      <ul class="mt-fuss-links">
+        <li><a href="https://mekotools.de/">MekoTools</a></li>
+        <li><a href="https://mekotools.de/katalog/">Werkzeugkatalog</a></li>
+        <li><a href="{{ path('<front>') }}">Bibliothek</a></li>
+        <li><a href="https://github.com/mekotools/h5p-studio">Projektarchiv</a></li>
+      </ul>
+      <p class="mt-fuss-klein">
+        H5P-Studio — Quelltext unter GPL-2.0-or-later. Inhalte der Bibliothek stehen
+        unter freien Lizenzen; Urheber und Lizenz stehen je Beispiel in der
+        <a href="https://github.com/mekotools/h5p-studio/blob/main/docs/herkunft.md">Herkunftsliste</a>.
+      </p>
+    </div>
+  </footer>
+</div>

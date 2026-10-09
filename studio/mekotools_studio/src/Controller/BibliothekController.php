@@ -4,6 +4,7 @@ namespace Drupal\mekotools_studio\Controller;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
@@ -29,8 +30,7 @@ class BibliothekController extends ControllerBase {
       ->accessCheck(TRUE)
       ->condition('type', 'h5p_inhalt')
       ->condition('status', 1)
-      ->sort('changed', 'DESC')
-      ->pager(25);
+      ->sort('changed', 'DESC');
 
     if ($suche !== '') {
       $abfrage->condition('title', $suche, 'CONTAINS');
@@ -39,9 +39,15 @@ class BibliothekController extends ControllerBase {
       $abfrage->condition('field_fach', (int) $fach);
     }
 
+    // Die Gesamtzahl zählen, BEVOR die Blätterung gesetzt ist. `execute()`
+    // liefert sonst nur die Kennungen der aktuellen Seite: die Anzeige meldete
+    // „25 Inhalte", obwohl 30 im Haus liegen (am 09.10.2026 gesehen), und auf
+    // der zweiten Seite „5 Inhalte". Eine Kopie half nicht — die Blätterung
+    // hängt an der Abfrage und wird bei jeder Ausführung angewendet.
+    $gesamt = (int) (clone $abfrage)->count()->execute();
+    $abfrage->pager(25);
     $kennungen = $abfrage->execute();
     $knoten = $kennungen ? Node::loadMultiple($kennungen) : [];
-    $gesamt = count($kennungen);
 
     // Auswahlliste der Fächer: nur, was wirklich vorhanden ist.
     $faecher = $this->entityTypeManager()->getStorage('taxonomy_term')
@@ -77,7 +83,7 @@ class BibliothekController extends ControllerBase {
     $inhalt = [
       '#cache' => ['tags' => ['node_list:h5p_inhalt'], 'contexts' => ['url.query_args']],
       'kopf' => ['#markup' => '<p>Hier liegen alle H5P-Inhalte des Hauses. Jeder Inhalt hat eine Adresse, die ohne Anmeldung funktioniert — gut für den Klassenraum.</p>'],
-      'formular' => ['#markup' => $this->formular($suche, $fach, $optionen, $zaehler)],
+      'formular' => ['#markup' => Markup::create($this->formular($suche, $fach, $optionen, $zaehler))],
       'anzahl' => ['#markup' => '<p><strong>' . ($gesamt === 1 ? '1 Inhalt' : $gesamt . ' Inhalte') . '</strong>'
         . ($suche !== '' ? ' zum Suchwort „' . Html::escape($suche) . '"' : '')
         . ($fach !== '' && isset($optionen[$fach]) ? ' im Fach ' . Html::escape($optionen[$fach]) : '') . '.</p>'],

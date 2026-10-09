@@ -8,6 +8,7 @@
  * Datenbank. So lässt sich die Instanz jederzeit nachbauen.
  */
 
+use Drupal\block\Entity\Block;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\field\Entity\FieldConfig;
@@ -462,4 +463,129 @@ function mekotools_studio_update_10004(&$sandbox) {
   $angemeldet = Role::load('angemeldet');
   return 'Rechte der Stufen gesetzt: Stufe 1 darf H5P-Inhalte anlegen und die eigenen pflegen ('
     . count($angemeldet->getPermissions()) . ' Rechte).';
+}
+
+/**
+ * Zieht die MekoTools-Hülle an: Gerüst, Startseite, Menü, Blöcke.
+ *
+ * Warum als Aktualisierungsschritt und nicht von Hand: eine neu aufgebaute
+ * Instanz soll dieselbe Oberfläche haben, ohne dass jemand daran denken muss.
+ *
+ * Der Aufruf des Studios landet in der Bibliothek — dem öffentlichen Katalog.
+ * Das ist der Kern des Auftrags „seamless": wer das Studio aufruft, sieht
+ * sofort die Beispiele, und der Weg zurück zu mekotools.de bleibt sichtbar.
+ */
+function mekotools_studio_update_10005(&$sandbox) {
+  $gemeldet = [];
+
+  // 1. Gerüst, Startseite, Name.
+  //    Das Gerüst muss erst installiert sein — ein bloßer Eintrag in der
+  //    Konfiguration würde auf eine unbekannte Gestaltung zeigen.
+  if (!\Drupal::service('theme_handler')->themeExists('mekotools_huelle')) {
+    \Drupal::service('theme_installer')->install(['mekotools_huelle']);
+  }
+  \Drupal::configFactory()->getEditable('system.theme')
+    ->set('default', 'mekotools_huelle')
+    ->save();
+  \Drupal::configFactory()->getEditable('system.site')
+    ->set('name', 'H5P-Studio')
+    ->set('slogan', '')
+    ->set('page.front', '/bibliothek')
+    ->save();
+  $gemeldet[] = 'Gerüst „MekoTools-Hülle" gesetzt, Startseite ist die Bibliothek.';
+
+  // 2. Zeichen und Verknüpfung des Fensters (Favicon aus dem Gerüst).
+  \Drupal::configFactory()->getEditable('mekotools_huelle.settings')
+    ->set('favicon.use_default', FALSE)
+    ->set('favicon.path', 'themes/custom/mekotools_huelle/favicon.png')
+    ->set('logo.use_default', TRUE)
+    ->save();
+
+  // 3. Blöcke des neuen Gerüsts. Ohne gesetzten Hauptinhalt zeigt jede Seite
+  //    nichts an — deshalb sind diese vier nicht optional. Die Einstellungen
+  //    werden von den vorhandenen Blöcken desselben Typs übernommen, damit
+  //    z. B. die Menütiefe stimmt.
+  //
+  //    Vorher fliegt auf, was Drupal beim Installieren eines Gerüsts von selbst
+  //    anlegt: eine eigene Blockordnung mit „Angetrieben von Drupal", doppelter
+  //    Marke und Hilfe-Block, alle in den ersten Bereich geschoben. Am
+  //    09.10.2026 genau so im Behälter gesehen. Gewünscht ist eine bestimmte
+  //    Ordnung, nicht Drupals Vorschlag.
+  $vorlagen = [];
+  foreach (Block::loadMultiple() as $vorhanden) {
+    $vorlagen[$vorhanden->getPluginId()] = $vorhanden;
+  }
+  $gewuenscht = [
+    'mekotools_huelle_page_title' => ['page_title_block', 'content', -10],
+    'mekotools_huelle_content' => ['system_main_block', 'content', 0],
+    'mekotools_huelle_messages' => ['system_messages_block', 'hinweise', 0],
+    'mekotools_huelle_breadcrumbs' => ['system_breadcrumb_block', 'hinweise', 1],
+    'mekotools_huelle_main_menu' => ['system_menu_block:main', 'kopf_navigation', 0],
+  ];
+  $entfernt = 0;
+  $blockspeicher = \Drupal::entityTypeManager()->getStorage('block');
+  foreach ($blockspeicher->loadByProperties(['theme' => 'mekotools_huelle']) as $alt) {
+    if (!isset($gewuenscht[$alt->id()])) {
+      $alt->delete();
+      $entfernt++;
+    }
+  }
+  $gesetzt = 0;
+  foreach ($gewuenscht as $id => [$plugin, $region, $gewicht]) {
+    if (!isset($vorlagen[$plugin])) {
+      continue;
+    }
+    $block = Block::load($id) ?: Block::create([
+      'id' => $id,
+      'theme' => 'mekotools_huelle',
+      'plugin' => $plugin,
+      'settings' => $vorlagen[$plugin]->get('settings'),
+      'visibility' => $vorlagen[$plugin]->get('visibility'),
+    ]);
+    $block->set('region', $region)->set('weight', $gewicht)->save();
+    $gesetzt++;
+  }
+  $gemeldet[] = $gesetzt . ' Blöcke im neuen Gerüst gesetzt, ' . $entfernt . ' Drupal-Standardblöcke entfernt.';
+
+  // 4. Hauptmenü: „Bibliothek" statt „Startseite", Rückweg zum Katalog.
+  //    Alte Verweise auf die (nun leer gelaufene) Startseite fliegen raus —
+  //    die Startseite IST die Bibliothek, ein zweiter Eintrag wäre irreführend.
+  $speicher = \Drupal::entityTypeManager()->getStorage('menu_link_content');
+  $vorhanden = $speicher->loadByProperties(['menu_name' => 'main']);
+  $entfernt = 0;
+  foreach ($vorhanden as $verweis) {
+    $ziel = $verweis->get('link')->first()->getValue()['uri'] ?? '';
+    if (in_array($ziel, ['internal:/node', 'internal:/', 'route:<front>', '<front>'], TRUE)) {
+      $beschriftung = (string) $verweis->label();
+      $verweis->delete();
+      $entfernt++;
+      $gemeldet[] = 'Menüverweis „' . $beschriftung . '" entfernt (die Startseite ist die Bibliothek).';
+    }
+  }
+
+  $zu_setzen = [
+    'Bibliothek' => ['internal:/bibliothek', 0],
+    'Werkzeugkatalog' => ['https://mekotools.de/katalog/', 20],
+  ];
+  foreach ($zu_setzen as $titel => [$ziel, $gewicht]) {
+    $schon_da = FALSE;
+    foreach ($speicher->loadByProperties(['menu_name' => 'main']) as $verweis) {
+      if ($verweis->label() === $titel) {
+        $schon_da = TRUE;
+      }
+    }
+    if (!$schon_da) {
+      $speicher->create([
+        'title' => $titel,
+        'link' => ['uri' => $ziel],
+        'menu_name' => 'main',
+        'weight' => $gewicht,
+        'expanded' => FALSE,
+      ])->save();
+      $gemeldet[] = 'Menüverweis „' . $titel . '" angelegt.';
+    }
+  }
+
+  $gemeldet[] = 'Fertig: ' . implode(' ', $gemeldet);
+  return implode(' ', $gemeldet);
 }

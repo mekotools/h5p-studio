@@ -66,7 +66,11 @@ COPY --from=bau /opt/drupal/vendor/ /opt/drupal/vendor/
 COPY --from=bau /opt/drupal/web/modules/contrib/ /opt/drupal/web/modules/contrib/
 
 # Unsere eigene Konfiguration: Inhaltsart, H5P-Feld, Bibliotheksseite, deutsche Beschriftungen.
-COPY studio/ /opt/drupal/web/modules/custom/mekotools_studio/
+COPY studio/mekotools_studio/ /opt/drupal/web/modules/custom/mekotools_studio/
+# Die Hülle des Hauses: eigenes Gerüst auf der Grundlage `stark`, Gestalt von
+# mekotools.de (MkDocs Material, Hausfarbe #009485). Sie ersetzt Olivero an der
+# Oberfläche; für die Verwaltung bleibt Claro zuständig.
+COPY studio/mekotools_huelle/ /opt/drupal/web/themes/custom/mekotools_huelle/
 COPY docker/eintritt.sh /usr/local/bin/eintritt.sh
 
 # Der Dateibereich liegt in einem Datenträger, nicht im Abbild: H5P-Inhalte und
@@ -77,7 +81,7 @@ RUN apt-get update \
  && chmod +x /usr/local/bin/eintritt.sh \
  && mkdir -p /daten/dateien /daten/privat \
  && ln -sfn /daten/dateien /opt/drupal/web/sites/default/files \
- && chown -R www-data:www-data /daten /opt/drupal/web/sites /opt/drupal/web/modules/custom
+ && chown -R www-data:www-data /daten /opt/drupal/web/sites /opt/drupal/web/modules/custom /opt/drupal/web/themes/custom
 
 EXPOSE 80
 

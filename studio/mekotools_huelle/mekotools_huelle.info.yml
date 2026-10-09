@@ -1,0 +1,14 @@
+name: 'MekoTools-Hülle'
+type: theme
+description: 'Bringt die Gestalt von mekotools.de ins Studio: türkise Kopfleiste (#009485), gleiche Breite, gleiche Fußzeile, helle und dunkle Darstellung nach Systemeinstellung. Keine fremden Schriftarten, keine Abrufe von außen.'
+package: MekoTools
+core_version_requirement: ^10.2 || ^11
+base theme: stark
+logo: logo.svg
+regions:
+  hinweise: 'Hinweise und Meldungen'
+  kopf_navigation: 'Navigation in der Kopfleiste'
+  content: 'Inhalt'
+  footer: 'Fußzeile'
+libraries:
+  - mekotools_huelle/huelle

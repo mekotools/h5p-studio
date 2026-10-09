@@ -1,0 +1,5 @@
+huelle:
+  version: 1.0.0
+  css:
+    theme:
+      css/huelle.css: {}
