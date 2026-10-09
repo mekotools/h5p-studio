@@ -72,9 +72,48 @@ class AntraegeController extends ControllerBase {
       '#attributes' => ['class' => ['mekotools-studio-antraege']],
     ];
 
+    // Stufe 1: angemeldet, aber noch nicht als Fachkraft bestätigt.
+    $zeilen = [];
+    foreach ($speicher->alle('aufgenommen') as $antrag) {
+      $zeilen[] = [
+        ['data' => ['#plain_text' => $antrag->name]],
+        ['data' => ['#plain_text' => $antrag->adresse]],
+        ['data' => ['#plain_text' => $this->rolleLesbar($antrag->rolle)]],
+        ['data' => ['#plain_text' => 'Stufe 1 — angemeldet']],
+        ['data' => ['#plain_text' => $antrag->bearbeitet ? \Drupal::service('date.formatter')->format((int) $antrag->bearbeitet, 'short') : '']],
+        [
+          'data' => [
+            '#type' => 'operations',
+            '#links' => [
+              'bestaetigen' => [
+                'title' => 'Als Fachkraft bestätigen',
+                'url' => Url::fromRoute('mekotools_studio.antrag_bestaetigen', ['nummer' => $antrag->nummer]),
+              ],
+              'ablehnen' => [
+                'title' => 'Doch ablehnen',
+                'url' => Url::fromRoute('mekotools_studio.antrag_ablehnen', ['nummer' => $antrag->nummer]),
+              ],
+            ],
+          ],
+        ],
+      ];
+    }
+    if ($zeilen) {
+      $bau['stufe1_titel'] = ['#markup' => '<h3>Angemeldet, noch nicht bestätigt (Stufe 1)</h3>'];
+      $bau['stufe1_hinweis'] = [
+        '#markup' => '<p>Diese Personen haben ein Konto und können Werkzeuge der Stufe 1 nutzen. '
+        . 'Werkzeuge, die pädagogische Betreuung voraussetzen, öffnen sich erst mit der Bestätigung (Stufe 2).</p>',
+      ];
+      $bau['stufe1'] = [
+        '#type' => 'table',
+        '#header' => ['Name', 'E-Mail-Adresse', 'Gemeldet als', 'Stufe', 'Angemeldet seit', 'Entscheidung'],
+        '#rows' => $zeilen,
+      ];
+    }
+
     $bearbeitet = [];
     foreach ($speicher->alle() as $antrag) {
-      if ($antrag->zustand === 'offen') {
+      if (!in_array($antrag->zustand, ['bestaetigt', 'abgelehnt'], TRUE)) {
         continue;
       }
       $bearbeitet[] = $antrag;
@@ -88,7 +127,7 @@ class AntraegeController extends ControllerBase {
         $zeilen[] = [
           ['data' => ['#plain_text' => $antrag->name]],
           ['data' => ['#plain_text' => $antrag->adresse]],
-          ['data' => ['#plain_text' => $antrag->zustand === 'eingeladen' ? 'eingeladen' : 'abgelehnt']],
+          ['data' => ['#plain_text' => $antrag->zustand === 'bestaetigt' ? 'Stufe 2 — bestätigt' : 'abgelehnt']],
           ['data' => ['#plain_text' => $antrag->bearbeitet ? \Drupal::service('date.formatter')->format((int) $antrag->bearbeitet, 'short') : '']],
           ['data' => ['#plain_text' => $antrag->vermerk]],
         ];

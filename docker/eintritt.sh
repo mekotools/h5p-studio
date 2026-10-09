@@ -120,6 +120,7 @@ anmeldung_einrichten() {
   # Verhaltensschalter (Anzeige im Anmeldeformular, Rollenzuordnung, Merkmale)
   # sitzen in den MODULEINSTELLUNGEN — am Kunden abgelegt bleiben sie wirkungslos.
   GRUPPE="${STUDIO_OIDC_GRUPPE:-lehrkraefte}"
+  STUFE1="${STUDIO_OIDC_GRUPPE_ANGEMELDET:-angemeldet}"
   VERWALTUNG="${STUDIO_OIDC_GRUPPE_VERWALTUNG:-verwaltung}"
 
   # Kundeneinstellungen UND Moduleinstellungen in einem Aufruf. Zwei Fallen:
@@ -132,7 +133,7 @@ anmeldung_einrichten() {
   # Die Endpunkte holt sich das Modul NICHT von selbst: die Selbst-Erkundung
   # läuft nur im Formular und legt das Ergebnis dort ab. Ohne sie bleibt der
   # Anmeldebeginn leer. Deshalb wird das Ausstellerdokument hier gelesen.
-  STUDIO_OIDC_GRUPPE="$GRUPPE" STUDIO_OIDC_VERWALTUNG="$VERWALTUNG" drush php:eval '
+  STUDIO_OIDC_GRUPPE="$GRUPPE" STUDIO_OIDC_GRUPPE_ANGEMELDET="$STUFE1" STUDIO_OIDC_VERWALTUNG="$VERWALTUNG" drush php:eval '
     $aussteller = rtrim(getenv("STUDIO_OIDC_ISSUER") ?: "https://auth.mekotools.de", "/");
     $werte = [
       "client_id" => getenv("STUDIO_OIDC_KENNUNG"),
@@ -157,6 +158,7 @@ anmeldung_einrichten() {
       echo "WARNUNG: Ausstellerdokument nicht lesbar: " . $e->getMessage() . "\n";
     }
     $gruppe = getenv("STUDIO_OIDC_GRUPPE") ?: "lehrkraefte";
+    $stufe1 = getenv("STUDIO_OIDC_GRUPPE_ANGEMELDET") ?: "angemeldet";
     $verwaltung = getenv("STUDIO_OIDC_VERWALTUNG") ?: "verwaltung";
     $speicher = \Drupal::entityTypeManager()->getStorage("openid_connect_client");
     $kunde = $speicher->load("pocketid");
@@ -179,14 +181,15 @@ anmeldung_einrichten() {
       ->set("connect_existing_users", FALSE)
       ->set("userinfo_mappings", ["mail" => "email", "name" => "preferred_username"])
       ->set("role_mappings", [
-        "lehrkraft" => [$gruppe, "Lehrkräfte"],
+        "angemeldet" => [$stufe1, "Angemeldet (unbestätigt)"],
+        "lehrkraft" => [$gruppe, "Fachkraft bestätigt"],
         "verwaltung" => [$verwaltung, "Verwaltung"],
       ])
       ->set("force_reset_role_mappings", TRUE)
       ->save();
     echo "Kunde " . $kunde->id() . " bereit\n";
   ' || warnen "Anmeldung konnte nicht eingerichtet werden"
-  melden "Anmeldung eingerichtet: Lehrkraft an Gruppe $GRUPPE, Verwaltung an Gruppe $VERWALTUNG"
+  melden "Anmeldung eingerichtet: Stufen — angemeldet=$STUFE1, Fachkraft=$GRUPPE, Verwaltung=$VERWALTUNG"
 }
 
 # --- 3b. Einrichten oder aktualisieren --------------------------------------

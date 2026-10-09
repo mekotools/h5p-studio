@@ -17,11 +17,12 @@ class Antragsspeicher {
   const TABELLE = 'mekotools_studio_zugangsantrag';
 
   /**
-   * Mögliche Zustände.
+   * Mögliche Zustände eines Antrags.
    */
   const ZUSTAENDE = [
     'offen' => 'offen',
-    'eingeladen' => 'eingeladen',
+    'aufgenommen' => 'aufgenommen',
+    'bestaetigt' => 'bestaetigt',
     'abgelehnt' => 'abgelehnt',
   ];
 
@@ -98,19 +99,25 @@ class Antragsspeicher {
    * @param string $zustand
    *   Einer der Werte aus self::ZUSTAENDE.
    * @param string $vermerk
-   *   Was passiert ist (Kennung im Anmeldedienst, Fehlermeldung, Grund).
+   *   Was passiert ist (Stufe, Kennung im Anmeldedienst, Fehlermeldung, Grund).
+   * @param string $konto
+   *   Kennung des Kontos im Anmeldedienst, wenn es sie gibt.
    */
-  public function zustandSetzen(int $nummer, string $zustand, string $vermerk = '', int $bearbeiter = 0): void {
+  public function zustandSetzen(int $nummer, string $zustand, string $vermerk = '', int $bearbeiter = 0, string $konto = ''): void {
     if (!isset(self::ZUSTAENDE[$zustand])) {
       throw new \InvalidArgumentException('Unbekannter Zustand: ' . $zustand);
     }
+    $felder = [
+      'zustand' => $zustand,
+      'vermerk' => mb_substr($vermerk, 0, 500),
+      'bearbeitet' => \Drupal::time()->getRequestTime(),
+      'zustaendig' => $bearbeiter,
+    ];
+    if ($konto !== '') {
+      $felder['konto'] = $konto;
+    }
     $this->tabelle()->update(self::TABELLE)
-      ->fields([
-        'zustand' => $zustand,
-        'vermerk' => mb_substr($vermerk, 0, 500),
-        'bearbeitet' => \Drupal::time()->getRequestTime(),
-        'zustaendig' => $bearbeiter,
-      ])
+      ->fields($felder)
       ->condition('nummer', $nummer)
       ->execute();
   }

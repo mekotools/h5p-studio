@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\mekotools_studio\Antragsspeicher;
 use Drupal\mekotools_studio\PocketId;
+use Drupal\mekotools_studio\Stufen;
 
 /**
  * Bestätigt und vollzieht die Freigabe eines Zugangsantrags.
@@ -83,16 +84,17 @@ class FreigabeForm extends ConfirmFormBase {
 
     try {
       $pocket = new PocketId();
-      $gruppe = $pocket->gruppe(PocketId::GRUPPE_LEHRKRAEFTE);
+      $gruppe = $pocket->gruppe(Stufen::ANGEMELDET);
       if (!$gruppe) {
         throw new \RuntimeException('Im Anmeldedienst gibt es keine Gruppe „'
-          . PocketId::GRUPPE_LEHRKRAEFTE . '". Bitte dort zuerst anlegen.');
+          . Stufen::ANGEMELDET . '". Bitte dort zuerst anlegen.');
       }
       $konto = $pocket->kontoNachAdresse($antrag->adresse);
       if ($konto) {
         $konto_id = $konto['id'];
-        $pocket->gruppenSetzen($konto_id, [$gruppe['id']]);
-        $this->messenger()->addStatus($this->t('@adresse hat schon ein Konto; es wurde in die Gruppe aufgenommen.', [
+        // Hinzufügen, nicht ersetzen: wer schon höhere Stufen hat, verliert sie nicht.
+        $pocket->gruppeHinzufuegen($konto_id, $gruppe['id']);
+        $this->messenger()->addStatus($this->t('@adresse hat schon ein Konto; es wurde in die Stufe „angemeldet" aufgenommen.', [
           '@adresse' => $antrag->adresse,
         ]));
       }
@@ -102,13 +104,13 @@ class FreigabeForm extends ConfirmFormBase {
         $this->messenger()->addStatus($this->t('Konto für @adresse angelegt.', ['@adresse' => $antrag->adresse]));
       }
       $pocket->einladungSenden($konto_id);
-      $speicher->zustandSetzen((int) $antrag->nummer, 'eingeladen',
-        'Konto ' . $konto_id . ' im Anmeldedienst, Einladung verschickt.',
-        (int) $this->currentUser()->id());
-      $this->messenger()->addStatus($this->t('Die Einladung an @adresse ist unterwegs.', [
+      $speicher->zustandSetzen((int) $antrag->nummer, 'aufgenommen',
+        'Stufe 1 (angemeldet): Einladung verschickt.',
+        (int) $this->currentUser()->id(), (string) $konto_id);
+      $this->messenger()->addStatus($this->t('Die Einladung an @adresse ist unterwegs. Die Person ist jetzt angemeldet, aber noch nicht bestätigt.', [
         '@adresse' => $antrag->adresse,
       ]));
-      $this->logger('mekotools_studio')->notice('Zugangsantrag @nummer freigegeben, Konto @konto.', [
+      $this->logger('mekotools_studio')->notice('Zugangsantrag @nummer aufgenommen (Stufe 1), Konto @konto.', [
         '@nummer' => $antrag->nummer,
         '@konto' => $konto_id,
       ]);

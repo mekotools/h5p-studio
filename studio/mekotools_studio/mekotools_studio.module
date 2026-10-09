@@ -8,7 +8,6 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Session\AccountInterface;
 
 /**
  * Hilfe für das Modul.
@@ -21,22 +20,15 @@ function mekotools_studio_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Wer sich anmeldet, ist Lehrkraft.
+ * Die Stufen kommen aus dem Anmeldedienst.
  *
- * Absichtlich hier und nicht in der Anmeldung am Anmeldedienst: die Regel gilt
- * für jeden Anmeldeweg (Pocket ID und Notfallkonto) und steht damit an genau
- * einer Stelle.
+ * Bis zum 09.10.2026 bekam hier JEDES angemeldete Konto die Rolle „Lehrkraft".
+ * Seit es die Stufenleiter gibt (angemeldet → Fachkraft bestätigt → Verwaltung)
+ * wäre das falsch: die Rolle hängt an der Gruppe im Anmeldedienst und wird bei
+ * der Anmeldung gesetzt (Einstellung „Rollen-Zuordnung" des Bausteins
+ * openid_connect, siehe docker/eintritt.sh › anmeldung_einrichten).
+ * Deshalb vergibt das Modul an dieser Stelle bewusst keine Rolle mehr.
  */
-function mekotools_studio_user_login(AccountInterface $account) {
-  if ($account->id() == 1 || $account->hasPermission('administer site configuration')) {
-    return;
-  }
-  if (!$account->hasRole('lehrkraft')) {
-    $account->addRole('lehrkraft');
-    $account->save();
-    \Drupal::logger('mekotools_studio')->notice('Rolle „Lehrkraft" an Konto @name vergeben.', ['@name' => $account->getAccountName()]);
-  }
-}
 
 /**
  * Adresse je Inhalt: /inhalt/<Kennung>. Damit lässt sich ein Inhalt teilen,

@@ -170,6 +170,24 @@ class PocketId {
   }
 
   /**
+   * Nimmt ein Konto zusätzlich in eine Gruppe auf, ohne andere zu verlieren.
+   *
+   * Die Stufen sind eine Leiter: wer bestätigt wird, bleibt in der unteren
+   * Stufe. Nur so genügt einem Werkzeug, das „ab Stufe 1" verlangt, die Angabe
+   * der einen Gruppe „angemeldet" — alle höheren Stufen sind dort Mitglied.
+   */
+  public function gruppeHinzufuegen(string $konto_id, string $gruppe_id): void {
+    $ids = array_map(
+      static fn(array $g) => $g['id'],
+      $this->ruf('/api/users/' . $konto_id . '/groups', 'GET')
+    );
+    if (!in_array($gruppe_id, $ids, TRUE)) {
+      $ids[] = $gruppe_id;
+      $this->gruppenSetzen($konto_id, $ids);
+    }
+  }
+
+  /**
    * Lässt den Anmeldedienst die Einladung verschicken.
    *
    * Der Anmeldedienst verschickt die Mail selbst (Brief „Login Code"); sie

@@ -59,3 +59,13 @@ mekotools_studio.antrag_ablehnen:
   requirements:
     _permission: 'zugangsantraege verwalten'
     nummer: '\d+'
+
+# Stufe 2: angemeldete Person als Fachkraft bestätigen.
+mekotools_studio.antrag_bestaetigen:
+  path: '/verwaltung/zugangsantraege/bestaetigen/{nummer}'
+  defaults:
+    _form: '\Drupal\mekotools_studio\Form\BestaetigungForm'
+    _title: 'Als Fachkraft bestätigen'
+  requirements:
+    _permission: 'zugangsantraege verwalten'
+    nummer: '\d+'

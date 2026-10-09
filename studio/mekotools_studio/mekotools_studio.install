@@ -290,6 +290,13 @@ function mekotools_studio_schema() {
           'not null' => TRUE,
           'default' => '',
         ],
+        'konto' => [
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => TRUE,
+          'default' => '',
+          'description' => 'Kennung des Kontos im Anmeldedienst.',
+        ],
         'angelegt' => [
           'type' => 'int',
           'not null' => TRUE,
@@ -344,6 +351,38 @@ function mekotools_studio_sicherstellen() {
       $verwaltung->grantPermission('zugangsantraege verwalten')->save();
     }
   }
+}
+
+/**
+ * Nimmt die Kennung des Kontos im Anmeldedienst auf.
+ */
+function mekotools_studio_update_10003(&$sandbox) {
+  $schema = \Drupal::database()->schema();
+  $tabelle = Antragsspeicher::TABELLE;
+  if ($schema->tableExists($tabelle) && !$schema->fieldExists($tabelle, 'konto')) {
+    $spalten = mekotools_studio_schema()[$tabelle]['fields'];
+    $schema->addField($tabelle, 'konto', $spalten['konto']);
+    return 'Spalte „konto" in der Tabelle der Zugangsanträge ergänzt.';
+  }
+  return 'Spalte „konto" war schon vorhanden.';
+}
+
+/**
+ * Legt die Rolle der Stufe 1 an.
+ *
+ * Stufe 1 ist „angemeldet, aber nicht bestätigt": sehen, aber nicht gestalten.
+ * Wer Inhalte erstellen darf, ist Stufe 2 (Rolle Lehrkraft).
+ */
+function mekotools_studio_update_10002(&$sandbox) {
+  $rolle = Role::load('angemeldet') ?: Role::create([
+    'id' => 'angemeldet',
+    'label' => 'Angemeldet (unbestätigt)',
+  ]);
+  foreach (['access content'] as $recht) {
+    $rolle->grantPermission($recht);
+  }
+  $rolle->save();
+  return 'Rolle „Angemeldet (unbestätigt)" für Stufe 1 eingerichtet.';
 }
 
 /**
