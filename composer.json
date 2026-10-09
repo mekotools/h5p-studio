@@ -22,7 +22,8 @@
         "drupal/core-recommended": "^11.4",
         "drupal/h5p": "2.0.0-beta1",
         "drupal/openid_connect": "3.0.0-alpha9",
-        "drush/drush": "^13.6"
+        "drush/drush": "^13.6",
+        "h5p/h5p-core": "1.27.0"
     },
     "conflict": {
         "drupal/drupal": "*"
